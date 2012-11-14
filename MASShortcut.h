@@ -52,3 +52,9 @@ enum {
 - (BOOL)isTakenError:(NSError **)error;
 
 @end
+
+//import the other headers so we can include the framework in the usual fashion.
+#import "MASShortcut+Monitoring.h"
+#import "MASShortcut+UserDefaults.h"
+#import "MASShortcutView.h"
+#import "MASShortcutView+UserDefaults.h"

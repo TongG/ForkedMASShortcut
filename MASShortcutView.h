@@ -6,7 +6,23 @@ typedef enum {
     MASShortcutViewAppearanceRounded       // Height = 43 px
 } MASShortcutViewAppearance;
 
-@interface MASShortcutView : NSView
+@interface MASShortcutView : NSView  {
+    
+    NSButtonCell *_shortcutCell;
+    NSInteger _shortcutToolTipTag;
+    NSInteger _hintToolTipTag;
+    NSTrackingArea *_hintArea;
+    
+    BOOL _enabled;
+    BOOL _hinting;
+    MASShortcut *_shortcutValue;
+    NSString *_shortcutPlaceholder;
+    void (^_shortcutValueChange)(MASShortcutView *sender);
+    BOOL _recording;
+    
+    MASShortcutViewAppearance _appearance;
+    
+}
 
 @property (nonatomic, strong) MASShortcut *shortcutValue;
 @property (nonatomic, getter = isRecording) BOOL recording;

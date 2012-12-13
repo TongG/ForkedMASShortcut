@@ -1,11 +1,17 @@
 #import "MASShortcut+UserDefaults.h"
 #import "MASShortcut+Monitoring.h"
 
-@interface MASShortcutUserDefaultsHotKey : NSObject
+@interface MASShortcutUserDefaultsHotKey : NSObject {
+    
+    NSString *_userDefaultsKey;
+    void (^_handler)();
+    id _monitor;
+
+}
 
 @property (nonatomic, readonly) NSString *userDefaultsKey;
 @property (nonatomic, copy) void (^handler)();
-@property (nonatomic, weak) id monitor;
+@property (nonatomic, retain) id monitor;
 
 - (id)initWithUserDefaultsKey:(NSString *)userDefaultsKey handler:(void (^)())handler;
 
@@ -20,7 +26,7 @@
     static NSMutableDictionary *shared = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        shared = [NSMutableDictionary dictionary];
+        shared = [[NSMutableDictionary dictionary] retain];
     });
     return shared;
 }
@@ -66,6 +72,7 @@
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:NSUserDefaultsDidChangeNotification object:[NSUserDefaults standardUserDefaults]];
     [MASShortcut removeGlobalHotkeyMonitor:self.monitor];
+    [super dealloc];
 }
 
 #pragma mark -

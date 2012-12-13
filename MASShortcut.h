@@ -30,7 +30,10 @@ enum {
 	kMASShortcutGlyphSoutheastArrow = 0x2198,
 } MASShortcutGlyph;
 
-@interface MASShortcut : NSObject <NSCoding>
+@interface MASShortcut : NSObject <NSCoding> {
+    NSUInteger _keyCode; // NSNotFound if empty
+    NSUInteger _modifierFlags; // 0 if empty
+}
 
 @property (nonatomic) NSUInteger keyCode;
 @property (nonatomic) NSUInteger modifierFlags;
@@ -50,6 +53,11 @@ enum {
 + (MASShortcut *)shortcutWithData:(NSData *)aData;
 
 - (BOOL)isTakenError:(NSError **)error;
+
+// The following API enable hotkeys with the Option key as the only modifier
+// For example, Option-G will not generate © and Option-R will not paste ®
++ (void)setAllowsAnyHotkeyWithOptionModifier:(BOOL)allow;
++ (BOOL)allowsAnyHotkeyWithOptionModifier;
 
 @end
 

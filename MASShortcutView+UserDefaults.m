@@ -2,7 +2,15 @@
 #import "MASShortcut.h"
 #import <objc/runtime.h>
 
-@interface MASShortcutDefaultsObserver : NSObject
+@interface MASShortcutDefaultsObserver : NSObject {
+
+    MASShortcut *_originalShortcut;
+    BOOL _internalPreferenceChange;
+    BOOL _internalShortcutChange;
+    NSString *_userDefaultsKey;
+    MASShortcutView *_shortcutView;
+
+}
 
 @property (nonatomic, readonly) NSString *userDefaultsKey;
 @property (nonatomic, readonly, weak) MASShortcutView *shortcutView;
@@ -31,17 +39,14 @@ void *kDefaultsObserver = &kDefaultsObserver;
     // Next, start observing current shortcut view
     MASShortcutDefaultsObserver *defaultsObserver = [[MASShortcutDefaultsObserver alloc] initWithShortcutView:self userDefaultsKey:associatedUserDefaultsKey];
     objc_setAssociatedObject(self, kDefaultsObserver, defaultsObserver, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    [defaultsObserver release];
 }
 
 @end
 
 #pragma mark -
 
-@implementation MASShortcutDefaultsObserver {
-    MASShortcut *_originalShortcut;
-    BOOL _internalPreferenceChange;
-    BOOL _internalShortcutChange;
-}
+@implementation MASShortcutDefaultsObserver
 
 @synthesize userDefaultsKey = _userDefaultsKey;
 @synthesize shortcutView = _shortcutView;
@@ -64,6 +69,7 @@ void *kDefaultsObserver = &kDefaultsObserver;
 {
     // __weak _shortcutView is not yet deallocated because it refers MASShortcutDefaultsObserver
     [self stopObservingShortcutView];
+    [super dealloc];
 }
 
 #pragma mark -

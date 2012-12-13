@@ -3,10 +3,7 @@
 NSString *const kMASShortcutKeyCode = @"KeyCode";
 NSString *const kMASShortcutModifierFlags = @"ModifierFlags";
 
-@implementation MASShortcut {
-    NSUInteger _keyCode; // NSNotFound if empty
-    NSUInteger _modifierFlags; // 0 if empty
-}
+@implementation MASShortcut
 
 @synthesize modifierFlags = _modifierFlags;
 @synthesize keyCode = _keyCode;
@@ -42,18 +39,23 @@ NSString *const kMASShortcutModifierFlags = @"ModifierFlags";
 
 + (MASShortcut *)shortcutWithKeyCode:(NSUInteger)code modifierFlags:(NSUInteger)flags
 {
-    return [[self alloc] initWithKeyCode:code modifierFlags:flags];
+    return [[[self alloc] initWithKeyCode:code modifierFlags:flags] autorelease];
 }
 
 + (MASShortcut *)shortcutWithEvent:(NSEvent *)event
 {
-    return [[self alloc] initWithKeyCode:event.keyCode modifierFlags:event.modifierFlags];
+    return [[[self alloc] initWithKeyCode:event.keyCode modifierFlags:event.modifierFlags] autorelease];
 }
 
 + (MASShortcut *)shortcutWithData:(NSData *)data
 {
     id shortcut = (data ? [NSKeyedUnarchiver unarchiveObjectWithData:data] : nil);
     return shortcut;
+}
+
+- (void)dealloc
+{
+    [super dealloc];
 }
 
 #pragma mark - Shortcut accessors
@@ -232,19 +234,50 @@ NSString *const kMASShortcutModifierFlags = @"ModifierFlags";
     return (self.modifierFlags == NSCommandKeyMask) && ([codeString isEqualToString:@"W"] || [codeString isEqualToString:@"Q"]);
 }
 
+BOOL MASShortcutAllowsAnyHotkeyWithOptionModifier = NO;
+
++ (void)setAllowsAnyHotkeyWithOptionModifier:(BOOL)allow
+{
+    MASShortcutAllowsAnyHotkeyWithOptionModifier = allow;
+}
+
++ (BOOL)allowsAnyHotkeyWithOptionModifier
+{
+    return MASShortcutAllowsAnyHotkeyWithOptionModifier;
+}
+
 - (BOOL)isValid
 {
-    BOOL hasFlags = (_modifierFlags > 0);
-    BOOL hasCommand = ((_modifierFlags & NSCommandKeyMask) > 0);
-    BOOL hasControl = ((_modifierFlags & NSControlKeyMask) > 0);
-    BOOL hasOption = ((_modifierFlags & NSAlternateKeyMask) > 0);
-    BOOL isFunction = ((_keyCode == kVK_F1) || (_keyCode == kVK_F2) || (_keyCode == kVK_F3) || (_keyCode == kVK_F4) ||
-                       (_keyCode == kVK_F5) || (_keyCode == kVK_F6) || (_keyCode == kVK_F7) || (_keyCode == kVK_F8) ||
-                       (_keyCode == kVK_F9) || (_keyCode == kVK_F10) || (_keyCode == kVK_F11) || (_keyCode == kVK_F12) ||
-                       (_keyCode == kVK_F13) || (_keyCode == kVK_F14) || (_keyCode == kVK_F15) || (_keyCode == kVK_F16) ||
-                       (_keyCode == kVK_F17) || (_keyCode == kVK_F18) || (_keyCode == kVK_F19) || (_keyCode == kVK_F20));
-    BOOL isSpecial = ((_keyCode == kVK_Space) || (_keyCode == kVK_Escape) || (_keyCode == kVK_Return));
-    return ((hasFlags && (hasCommand || hasControl || (hasOption && isSpecial))) || isFunction);
+    // Allow any function key with any combination of modifiers
+    BOOL includesFunctionKey = ((_keyCode == kVK_F1) || (_keyCode == kVK_F2) || (_keyCode == kVK_F3) || (_keyCode == kVK_F4) ||
+                                (_keyCode == kVK_F5) || (_keyCode == kVK_F6) || (_keyCode == kVK_F7) || (_keyCode == kVK_F8) ||
+                                (_keyCode == kVK_F9) || (_keyCode == kVK_F10) || (_keyCode == kVK_F11) || (_keyCode == kVK_F12) ||
+                                (_keyCode == kVK_F13) || (_keyCode == kVK_F14) || (_keyCode == kVK_F15) || (_keyCode == kVK_F16) ||
+                                (_keyCode == kVK_F17) || (_keyCode == kVK_F18) || (_keyCode == kVK_F19) || (_keyCode == kVK_F20));
+    if (includesFunctionKey) return YES;
+
+    // Do not allow any other key without modifiers
+    BOOL hasModifierFlags = (_modifierFlags > 0);
+    if (!hasModifierFlags) return NO;
+
+    // Allow any hotkey containing Control or Command modifier
+    BOOL includesCommand = ((_modifierFlags & NSCommandKeyMask) > 0);
+    BOOL includesControl = ((_modifierFlags & NSControlKeyMask) > 0);
+    if (includesCommand || includesControl) return YES;
+
+    // Allow Option key only in selected cases
+    BOOL includesOption = ((_modifierFlags & NSAlternateKeyMask) > 0);
+    if (includesOption) {
+
+        // Always allow Option-Space and Option-Escape because they do not have any bind system commands
+        if ((_keyCode == kVK_Space) || (_keyCode == kVK_Escape)) return YES;
+
+        // Allow Option modifier with any key even if it will break the system binding
+        if ([[self class] allowsAnyHotkeyWithOptionModifier]) return YES;
+    }
+
+    // The hotkey does not have any modifiers or violates system bindings
+    return NO;
 }
 
 - (BOOL)isKeyEquivalent:(NSString *)keyEquivalent flags:(NSUInteger)flags takenInMenu:(NSMenu *)menu error:(NSError **)outError
@@ -286,8 +319,8 @@ NSString *const kMASShortcutModifierFlags = @"ModifierFlags";
             CFNumberRef code = CFDictionaryGetValue(hotKeyInfo, kHISymbolicHotKeyCode);
             CFNumberRef flags = CFDictionaryGetValue(hotKeyInfo, kHISymbolicHotKeyModifiers);
 
-            if (([(__bridge NSNumber *)code unsignedIntegerValue] == self.keyCode) &&
-                ([(__bridge NSNumber *)flags unsignedIntegerValue] == self.carbonFlags)) {
+            if (([(NSNumber *)code unsignedIntegerValue] == self.keyCode) &&
+                ([(NSNumber *)flags unsignedIntegerValue] == self.carbonFlags)) {
 
                 if (outError) {
                     NSString *description = NSLocalizedString(@"This combination cannot be used used because it is already used by a system-wide "

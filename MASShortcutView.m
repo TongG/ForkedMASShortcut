@@ -16,12 +16,7 @@
 
 #pragma mark -
 
-@implementation MASShortcutView {
-    NSButtonCell *_shortcutCell;
-    NSInteger _shortcutToolTipTag;
-    NSInteger _hintToolTipTag;
-    NSTrackingArea *_hintArea;
-}
+@implementation MASShortcutView
 
 @synthesize enabled = _enabled;
 @synthesize hinting = _hinting;
@@ -29,10 +24,11 @@
 @synthesize shortcutPlaceholder = _shortcutPlaceholder;
 @synthesize shortcutValueChange = _shortcutValueChange;
 @synthesize recording = _recording;
+@synthesize appearance=_appearance;
 
 #pragma mark -
 
-- (id)initWithFrame:(CGRect)frameRect
+- (id)initWithFrame:(NSRect)frameRect
 {
     self = [super initWithFrame:frameRect];
     if (self) {
@@ -47,8 +43,10 @@
 
 - (void)dealloc
 {
+    [_shortcutCell release]; _shortcutCell = nil;
     [self activateEventMonitoring:NO];
     [self activateResignObserver:NO];
+    [super dealloc];
 }
 
 #pragma mark - Public accessors
@@ -114,7 +112,10 @@
 
 - (void)setShortcutValue:(MASShortcut *)shortcutValue
 {
-    _shortcutValue = shortcutValue;
+    if (shortcutValue != _shortcutValue){
+        [_shortcutValue release];
+        _shortcutValue = [shortcutValue retain];
+    }
     [self resetToolTips];
     [self setNeedsDisplay:YES];
 
@@ -125,7 +126,10 @@
 
 - (void)setShortcutPlaceholder:(NSString *)shortcutPlaceholder
 {
-    _shortcutPlaceholder = shortcutPlaceholder.copy;
+    if (_shortcutPlaceholder != shortcutPlaceholder){
+        [_shortcutPlaceholder release];
+        _shortcutPlaceholder = shortcutPlaceholder.copy;
+    }
     [self setNeedsDisplay:YES];
 }
 
@@ -136,7 +140,7 @@
     return YES;
 }
 
-- (void)drawInRect:(CGRect)frame withTitle:(NSString *)title alignment:(NSTextAlignment)alignment state:(NSInteger)state
+- (void)drawInRect:(NSRect)frame withTitle:(NSString *)title alignment:(NSTextAlignment)alignment state:(NSInteger)state
 {
     _shortcutCell.title = title;
     _shortcutCell.alignment = alignment;
@@ -149,17 +153,17 @@
             break;
         }
         case MASShortcutViewAppearanceTexturedRect: {
-            [_shortcutCell drawWithFrame:CGRectOffset(frame, 0.0, 1.0) inView:self];
+            [_shortcutCell drawWithFrame:NSRectFromCGRect(CGRectOffset(NSRectToCGRect(frame), 0.0, 1.0)) inView:self];
             break;
         }
         case MASShortcutViewAppearanceRounded: {
-            [_shortcutCell drawWithFrame:CGRectOffset(frame, 0.0, 1.0) inView:self];
+            [_shortcutCell drawWithFrame:NSRectFromCGRect(CGRectOffset(NSRectToCGRect(frame), 0.0, 1.0)) inView:self];
             break;
         }
     }
 }
 
-- (void)drawRect:(CGRect)dirtyRect
+- (void)drawRect:(NSRect)dirtyRect
 {
     if (self.shortcutValue) {
         [self drawInRect:self.bounds withTitle:MASShortcutChar(self.recording ? kMASShortcutGlyphEscape : kMASShortcutGlyphDeleteLeft)
@@ -174,7 +178,7 @@
                                  ? self.shortcutPlaceholder
                                  : NSLocalizedString(@"Type New Shortcut", @"Non-empty shortcut button in recording state")))
                            : _shortcutValue ? _shortcutValue.description : @"");
-        [self drawInRect:shortcutRect withTitle:title alignment:NSCenterTextAlignment state:self.isRecording ? NSOnState : NSOffState];
+        [self drawInRect:NSRectFromCGRect(shortcutRect) withTitle:title alignment:NSCenterTextAlignment state:self.isRecording ? NSOnState : NSOffState];
     }
     else {
         if (self.recording)
@@ -188,7 +192,7 @@
                                : (self.shortcutPlaceholder.length > 0
                                   ? self.shortcutPlaceholder
                                   : NSLocalizedString(@"Type Shortcut", @"Empty shortcut button in recording state")));
-            [self drawInRect:shortcutRect withTitle:title alignment:NSCenterTextAlignment state:NSOnState];
+            [self drawInRect:NSRectFromCGRect(shortcutRect) withTitle:title alignment:NSCenterTextAlignment state:NSOnState];
         }
         else
         {
@@ -209,7 +213,7 @@
         case MASShortcutViewAppearanceRounded: hintButtonWidth += 3.0; break;
         default: break;
     }
-    CGRectDivide(self.bounds, &hintRect, &shortcutRect, hintButtonWidth, CGRectMaxXEdge);
+    CGRectDivide(NSRectToCGRect(self.bounds), &hintRect, &shortcutRect, hintButtonWidth, CGRectMaxXEdge);
     if (shortcutRectRef)  *shortcutRectRef = shortcutRect;
     if (hintRectRef) *hintRectRef = hintRect;
 }
@@ -218,14 +222,14 @@
 {
     CGRect shortcutRect;
     [self getShortcutRect:&shortcutRect hintRect:NULL];
-    return CGRectContainsPoint(shortcutRect, [self convertPoint:location fromView:nil]);
+    return CGRectContainsPoint(shortcutRect, NSPointToCGPoint([self convertPoint:NSPointFromCGPoint(location) fromView:nil]));
 }
 
 - (BOOL)locationInHintRect:(CGPoint)location
 {
     CGRect hintRect;
     [self getShortcutRect:NULL hintRect:&hintRect];
-    return CGRectContainsPoint(hintRect, [self convertPoint:location fromView:nil]);
+    return CGRectContainsPoint(hintRect, NSPointToCGPoint([self convertPoint:NSPointFromCGPoint(location) fromView:nil]));
 }
 
 - (void)mouseDown:(NSEvent *)event
@@ -233,12 +237,12 @@
     if (self.enabled) {
         if (self.shortcutValue) {
             if (self.recording) {
-                if ([self locationInHintRect:event.locationInWindow]) {
+                if ([self locationInHintRect:NSPointToCGPoint(event.locationInWindow)]) {
                     self.recording = NO;
                 }
             }
             else {
-                if ([self locationInShortcutRect:event.locationInWindow]) {
+                if ([self locationInShortcutRect:NSPointToCGPoint(event.locationInWindow)]) {
                     self.recording = YES;
                 }
                 else {
@@ -248,7 +252,7 @@
         }
         else {
             if (self.recording) {
-                if ([self locationInHintRect:event.locationInWindow]) {
+                if ([self locationInHintRect:NSPointToCGPoint(event.locationInWindow)]) {
                     self.recording = NO;
                 }
             }
@@ -270,6 +274,7 @@
     
     if (_hintArea) {
         [self removeTrackingArea:_hintArea];
+        [_hintArea release];
         _hintArea = nil;
     }
     
@@ -279,7 +284,7 @@
     CGRect hintRect;
     [self getShortcutRect:NULL hintRect:&hintRect];
     NSTrackingAreaOptions options = (NSTrackingMouseEnteredAndExited | NSTrackingActiveAlways | NSTrackingAssumeInside);
-    _hintArea = [[NSTrackingArea alloc] initWithRect:hintRect options:options owner:self userInfo:nil];
+    _hintArea = [[NSTrackingArea alloc] initWithRect:NSRectFromCGRect(hintRect) options:options owner:self userInfo:nil];
     [self addTrackingArea:_hintArea];
 }
 
@@ -317,8 +322,8 @@ void *kUserDataHint = &kUserDataHint;
 
     CGRect shortcutRect, hintRect;
     [self getShortcutRect:&shortcutRect hintRect:&hintRect];
-    _shortcutToolTipTag = [self addToolTipRect:shortcutRect owner:self userData:kUserDataShortcut];
-    _hintToolTipTag = [self addToolTipRect:hintRect owner:self userData:kUserDataHint];
+    _shortcutToolTipTag = [self addToolTipRect:NSRectFromCGRect(shortcutRect) owner:self userData:kUserDataShortcut];
+    _hintToolTipTag = [self addToolTipRect:NSRectFromCGRect(hintRect) owner:self userData:kUserDataHint];
 }
 
 - (NSString *)view:(NSView *)view stringForToolTip:(NSToolTipTag)tag point:(CGPoint)point userData:(void *)data
@@ -342,7 +347,7 @@ void *kUserDataHint = &kUserDataHint;
     
     static id eventMonitor = nil;
     if (shouldActivate) {
-        __weak MASShortcutView *weakSelf = self;
+        __block MASShortcutView *weakSelf = self;
         NSEventMask eventMask = (NSKeyDownMask | NSFlagsChangedMask);
         eventMonitor = [NSEvent addLocalMonitorForEventsMatchingMask:eventMask handler:^(NSEvent *event) {
 
@@ -414,7 +419,7 @@ void *kUserDataHint = &kUserDataHint;
     static id observer = nil;
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
     if (shouldActivate) {
-        __weak MASShortcutView *weakSelf = self;
+        __block MASShortcutView *weakSelf = self;
         observer = [notificationCenter addObserverForName:NSWindowDidResignKeyNotification object:self.window
                                                 queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification) {
                                                     weakSelf.recording = NO;

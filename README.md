@@ -27,7 +27,7 @@ To set an example, I made a  demo project: [MASShortcutDemo](https://github.com/
 
 # Non-ARC Version
 
-If you like retain/release, please check out the following fork: [chendo/MASShortcut](https://github.com/chendo/MASShortcut).
+This repo does not use ARC.
 
 # Copyright
 

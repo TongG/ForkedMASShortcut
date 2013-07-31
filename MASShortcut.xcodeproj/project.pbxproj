@@ -162,7 +162,7 @@
 			isa = PBXProject;
 			attributes = {
 				CLASSPREFIX = MAS;
-				LastUpgradeCheck = 0460;
+				LastUpgradeCheck = 0500;
 				ORGANIZATIONNAME = "";
 			};
 			buildConfigurationList = 13F8FDB416531A9C00FFDAD5 /* Build configuration list for PBXProject "MASShortcut" */;

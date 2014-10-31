@@ -7,7 +7,7 @@ The project MASShortcut introduces modern API and user interface for recording, 
 # Usage
 
 I hope, it is really easy:
-
+```objective-c
 	// Drop a custom view into XIB and set its class to MASShortcutView
 	@property (nonatomic, weak) IBOutlet MASShortcutView *shortcutView;
 	
@@ -22,6 +22,7 @@ I hope, it is really easy:
 		
 		// Let me know if you find a better or more convenient API.
 	}];
+```
 
 To set an example, I made a  demo project: [MASShortcutDemo](https://github.com/shpakovski/MASShortcutDemo). Enjoy!
 

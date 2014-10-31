@@ -20,7 +20,9 @@ self.shortcutView.associatedUserDefaultsKey = kPreferenceGlobalShortcut;
 // Execute your block of code automatically when user triggers a shortcut from preferences
 [ MASShortcut registerGlobalShortcutWithUserDefaultsKey: kPreferenceGlobalShortcut 
                                                 handler:
-    ^{  /* Let me know if you find a better or more convenient API. */ }];
+    ^{  
+    /* Let me know if you find a better or more convenient API. */ 
+     } ];
 ```
 
 To set an example, I made a  demo project: [MASShortcutDemo](https://github.com/shpakovski/MASShortcutDemo). Enjoy!

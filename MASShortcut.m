@@ -5,26 +5,29 @@
 @synthesize modifierFlags = _modifierFlags;
 @synthesize keyCode = _keyCode;
 
+@dynamic data;
+
 #pragma mark Coding Behaviors
-NSString* const kMASShortcutKeyCode = @"KeyCode";
-NSString* const kMASShortcutModifierFlags = @"ModifierFlags";
+NSString* const kMASShortcutKeyCodeArchivedKey = @"KeyCode";
+NSString* const kMASShortcutModifierFlagsArchivedKey = @"ModifierFlags";
 
 - ( void ) encodeWithCoder: ( NSCoder* )_Coder
     {
     [ _Coder encodeInteger: ( self.keyCode != NSNotFound ? ( NSInteger )self.keyCode : - 1 )
-                    forKey: kMASShortcutKeyCode ];
+                    forKey: kMASShortcutKeyCodeArchivedKey ];
 
     [ _Coder encodeInteger: ( NSInteger )self.modifierFlags
-                    forKey: kMASShortcutModifierFlags ];
+                    forKey: kMASShortcutModifierFlagsArchivedKey ];
     }
 
 - ( id ) initWithCoder: ( NSCoder* )_Decoder
     {
     if ( self = [ super init ] )
         {
-        NSInteger code = [ _Decoder decodeIntegerForKey: kMASShortcutKeyCode ];
+        NSInteger code = [ _Decoder decodeIntegerForKey: kMASShortcutKeyCodeArchivedKey ];
         self.keyCode = ( code < 0 ? NSNotFound : ( NSUInteger )code );
-        self.modifierFlags = [ _Decoder decodeIntegerForKey: kMASShortcutModifierFlags ];
+
+        self.modifierFlags = [ _Decoder decodeIntegerForKey: kMASShortcutModifierFlagsArchivedKey ];
         }
 
     return self;
@@ -74,59 +77,67 @@ NSString* const kMASShortcutModifierFlags = @"ModifierFlags";
     }
 
 #pragma mark Shortcut Accessors
-- (NSData *)data
-{
-    return [NSKeyedArchiver archivedDataWithRootObject:self];
-}
-
-- (void)setModifierFlags:(NSUInteger)value
-{
-    _modifierFlags = MASShortcutClear(value);
-}
-
-- (UInt32)carbonKeyCode
-{
-    return (self.keyCode == NSNotFound ? 0 : (UInt32)self.keyCode);
-}
-
-- (UInt32)carbonFlags
-{
-    return MASShortcutCarbonFlags(self.modifierFlags);
-}
-
-- (NSString *)description
-{
-    return [NSString stringWithFormat:@"%@%@", self.modifierFlagsString, self.keyCodeString];
-}
-
-- (NSString *)keyCodeStringForKeyEquivalent
-{
-    NSString *keyCodeString = self.keyCodeString;
-    if (keyCodeString.length > 1) {
-        switch (self.keyCode) {
-            case kVK_F1: return MASShortcutChar(0xF704);
-            case kVK_F2: return MASShortcutChar(0xF705);
-            case kVK_F3: return MASShortcutChar(0xF706);
-            case kVK_F4: return MASShortcutChar(0xF707);
-            case kVK_F5: return MASShortcutChar(0xF708);
-            case kVK_F6: return MASShortcutChar(0xF709);
-            case kVK_F7: return MASShortcutChar(0xF70a);
-            case kVK_F8: return MASShortcutChar(0xF70b);
-            case kVK_F9: return MASShortcutChar(0xF70c);
-            case kVK_F10: return MASShortcutChar(0xF70d);
-            case kVK_F11: return MASShortcutChar(0xF70e);
-            case kVK_F12: return MASShortcutChar(0xF70f);
-            // From this point down I am guessing F13 etc come sequentially, I don't have a keyboard to test.
-            case kVK_F13: return MASShortcutChar(0xF710);
-            case kVK_F14: return MASShortcutChar(0xF711);
-            case kVK_F15: return MASShortcutChar(0xF712);
-            case kVK_F16: return MASShortcutChar(0xF713);
-            case kVK_Space: return MASShortcutChar(0x20);
-            default: return @"";
-        }
+- ( NSData* ) data
+    {
+    return [ NSKeyedArchiver archivedDataWithRootObject: self ];
     }
-    return keyCodeString.lowercaseString;
-}
+
+- ( void ) setModifierFlags: ( NSUInteger )_Value
+    {
+    _modifierFlags = MASShortcutClear( _Value );    // Filter out
+    }
+
+- ( UInt32 ) carbonKeyCode
+    {
+    return ( self.keyCode == NSNotFound ? 0 : ( UInt32 )self.keyCode );
+    }
+
+- ( UInt32 ) carbonFlags
+    {
+    // Map the Cocoa's modifier flags to Carbon's using MASShortcutCarbonFlags function
+    return MASShortcutCarbonFlags( self.modifierFlags );
+    }
+
+- ( NSString* ) description
+    {
+    return [ NSString stringWithFormat: @"%@%@", self.modifierFlagsString
+                                               , self.keyCodeString ];
+    }
+
+- ( NSString* ) keyCodeStringForKeyEquivalent
+    {
+    NSString* keyCodeString = self.keyCodeString;
+
+    if ( keyCodeString.length > 1 )
+        {
+        switch ( self.keyCode )
+            {
+        case kVK_F1:    return MASShortcutChar( 0xF704 );
+        case kVK_F2:    return MASShortcutChar( 0xF705 );
+        case kVK_F3:    return MASShortcutChar( 0xF706 );
+        case kVK_F4:    return MASShortcutChar( 0xF707 );
+        case kVK_F5:    return MASShortcutChar( 0xF708 );
+        case kVK_F6:    return MASShortcutChar( 0xF709 );
+        case kVK_F7:    return MASShortcutChar( 0xF70a );
+        case kVK_F8:    return MASShortcutChar( 0xF70b );
+        case kVK_F9:    return MASShortcutChar( 0xF70c );
+        case kVK_F10:   return MASShortcutChar( 0xF70d );
+        case kVK_F11:   return MASShortcutChar( 0xF70e );
+        case kVK_F12:   return MASShortcutChar( 0xF70f );
+
+        // From this point down I am guessing F13 etc come sequentially, I don't have a keyboard to test.
+        case kVK_F13:   return MASShortcutChar( 0xF710 );
+        case kVK_F14:   return MASShortcutChar( 0xF711 );
+        case kVK_F15:   return MASShortcutChar( 0xF712 );
+        case kVK_F16:   return MASShortcutChar( 0xF713 );
+        case kVK_Space: return MASShortcutChar( 0x20 );
+
+        default:        return @"";
+            }
+        }
+
+    return [ keyCodeString lowercaseString ];
+    }
 
 - (NSString *)keyCodeString
 {

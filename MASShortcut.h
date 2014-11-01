@@ -7,11 +7,12 @@
  * filter out all of others */
 #define MASShortcutClear( _Flags ) ( _Flags & ( NSControlKeyMask | NSShiftKeyMask | NSAlternateKeyMask | NSCommandKeyMask ) )
 
-#define MASShortcutCarbonFlags( _CocoaFlags ) (                      \
-    ( _CocoaFlags & NSCommandKeyMask ? cmdKey : 0 ) |                \
-    ( _CocoaFlags & NSAlternateKeyMask ? optionKey : 0 ) |           \
-    ( _CocoaFlags & NSControlKeyMask ? controlKey : 0 ) |            \
-    ( _CocoaFlags & NSShiftKeyMask ? shiftKey : 0 ) )
+/* Map the Cocoa's modifier flags to Carbon's */
+#define MASShortcutCarbonFlags( _CocoaFlags ) (                 \
+    ( _CocoaFlags & NSCommandKeyMask ? cmdKey : 0 )             \
+        | ( _CocoaFlags & NSAlternateKeyMask ? optionKey : 0 )  \
+        | ( _CocoaFlags & NSControlKeyMask ? controlKey : 0 )   \
+        | ( _CocoaFlags & NSShiftKeyMask ? shiftKey : 0 ) )
 
 /* These glyphs are missed in Carbon.h */
 enum { kMASShortcutGlyphEject = 0x23CF
@@ -36,6 +37,7 @@ enum { kMASShortcutGlyphEject = 0x23CF
 
 @interface MASShortcut : NSObject <NSCoding>
     {
+@private
     NSUInteger _keyCode;        // NSNotFound if empty
     NSUInteger _modifierFlags;  // 0 if empty
     }

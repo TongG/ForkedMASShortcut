@@ -1,65 +1,79 @@
 #import "MASShortcut.h"
 
-NSString *const kMASShortcutKeyCode = @"KeyCode";
-NSString *const kMASShortcutModifierFlags = @"ModifierFlags";
-
 @implementation MASShortcut
 
 @synthesize modifierFlags = _modifierFlags;
 @synthesize keyCode = _keyCode;
 
-#pragma mark -
+#pragma mark Coding Behaviors
+NSString* const kMASShortcutKeyCode = @"KeyCode";
+NSString* const kMASShortcutModifierFlags = @"ModifierFlags";
 
-- (void)encodeWithCoder:(NSCoder *)coder
-{
-    [coder encodeInteger:(self.keyCode != NSNotFound ? (NSInteger)self.keyCode : - 1) forKey:kMASShortcutKeyCode];
-    [coder encodeInteger:(NSInteger)self.modifierFlags forKey:kMASShortcutModifierFlags];
-}
+- ( void ) encodeWithCoder: ( NSCoder* )_Coder
+    {
+    [ _Coder encodeInteger: ( self.keyCode != NSNotFound ? ( NSInteger )self.keyCode : - 1 )
+                    forKey: kMASShortcutKeyCode ];
 
-- (id)initWithCoder:(NSCoder *)decoder
-{
-    self = [super init];
-    if (self) {
-        NSInteger code = [decoder decodeIntegerForKey:kMASShortcutKeyCode];
-        self.keyCode = (code < 0 ? NSNotFound : (NSUInteger)code);
-        self.modifierFlags = [decoder decodeIntegerForKey:kMASShortcutModifierFlags];
+    [ _Coder encodeInteger: ( NSInteger )self.modifierFlags
+                    forKey: kMASShortcutModifierFlags ];
     }
-    return self;
-}
 
-- (id)initWithKeyCode:(NSUInteger)code modifierFlags:(NSUInteger)flags
-{
-    self = [super init];
-    if (self) {
-        _keyCode = code;
-        _modifierFlags = MASShortcutClear(flags);
+- ( id ) initWithCoder: ( NSCoder* )_Decoder
+    {
+    if ( self = [ super init ] )
+        {
+        NSInteger code = [ _Decoder decodeIntegerForKey: kMASShortcutKeyCode ];
+        self.keyCode = ( code < 0 ? NSNotFound : ( NSUInteger )code );
+        self.modifierFlags = [ _Decoder decodeIntegerForKey: kMASShortcutModifierFlags ];
+        }
+
+    return self;
     }
-    return self;
-}
 
-+ (MASShortcut *)shortcutWithKeyCode:(NSUInteger)code modifierFlags:(NSUInteger)flags
-{
-    return [[[self alloc] initWithKeyCode:code modifierFlags:flags] autorelease];
-}
+#pragma mark Initializers & Deallocator
++ ( MASShortcut* ) shortcutWithKeyCode: ( NSUInteger )_Code
+                         modifierFlags: ( NSUInteger )_Flags;
+    {
+    return [ [ [ self alloc ] initWithKeyCode: _Code
+                                modifierFlags: _Flags ] autorelease ];
+    }
 
-+ (MASShortcut *)shortcutWithEvent:(NSEvent *)event
-{
-    return [[[self alloc] initWithKeyCode:event.keyCode modifierFlags:event.modifierFlags] autorelease];
-}
+/* The _Event parameter must be a key event, otherwise the assertion will be failure */
++ ( MASShortcut* ) shortcutWithEvent: ( NSEvent* )_Event
+    {
+    return [ [ [ self alloc ] initWithKeyCode: [ _Event keyCode ]
+                                modifierFlags: [ _Event modifierFlags ]
+                                ] autorelease ];
+    }
 
-+ (MASShortcut *)shortcutWithData:(NSData *)data
-{
-    id shortcut = (data ? [NSKeyedUnarchiver unarchiveObjectWithData:data] : nil);
++ ( MASShortcut* ) shortcutWithData: ( NSData* )_Data
+    {
+    id shortcut = ( _Data ? [ NSKeyedUnarchiver unarchiveObjectWithData: _Data ] : nil );
     return shortcut;
-}
+    }
 
-- (void)dealloc
-{
-    [super dealloc];
-}
+// Designated Initializer
+- ( id ) initWithKeyCode: ( NSUInteger )_Code
+           modifierFlags: ( NSUInteger )_Flags
+    {
+    if ( self = [ super init ] )
+        {
+        _keyCode = _Code;
 
-#pragma mark - Shortcut accessors
+        /* Allowing only the ⇧, ⌃, ⌥, ⌘,
+         * so we filter out all of other modifier keys using MASShortcutClear() function */
+        _modifierFlags = MASShortcutClear( _Flags );
+        }
 
+    return self;
+    }
+
+- ( void ) dealloc
+    {
+    [ super dealloc ];
+    }
+
+#pragma mark Shortcut Accessors
 - (NSData *)data
 {
     return [NSKeyedArchiver archivedDataWithRootObject:self];
@@ -226,8 +240,7 @@ NSString *const kMASShortcutModifierFlags = @"ModifierFlags";
     return (count ? [NSString stringWithCharacters:chars length:count] : @"");
 }
 
-#pragma mark - Validation logic
-
+#pragma mark Validation Logic
 - (BOOL)shouldBypass
 {
     NSString *codeString = self.keyCodeString;

@@ -57,7 +57,9 @@ enum { kMASShortcutGlyphEject = 0x23CF
 + ( MASShortcut* ) shortcutWithKeyCode: ( NSUInteger )_Code
                          modifierFlags: ( NSUInteger )_Flags;
 
-+ ( MASShortcut* ) shortcutWithEvent: ( NSEvent* )_AnEvent;
+/* The _Event parameter must be a key event, otherwise the assertion will be failure */
++ ( MASShortcut* ) shortcutWithEvent: ( NSEvent* )_Event;
+
 + ( MASShortcut* ) shortcutWithData: ( NSData* )_Data;
 
 - ( BOOL ) isTakenError: ( NSError** )_Error;

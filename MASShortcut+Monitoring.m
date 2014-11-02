@@ -8,10 +8,10 @@ void UninstallEventHandler();
 #pragma mark MASShortcutHotKey class interface
 @interface MASShortcutHotKey : NSObject
     {
-    MASShortcut* _shortcut;
+    MASShortcut*    _shortcut;
     void ( ^_handler )();
-    EventHotKeyRef _carbonHotKey;
-    UInt32 _carbonHotKeyID;
+    EventHotKeyRef  _carbonHotKey;
+    UInt32          _carbonHotKeyID;
     }
 
 @property ( nonatomic, readonly, retain ) MASShortcut* shortcut;
@@ -39,26 +39,27 @@ void UninstallEventHandler();
     if ( hotKey == nil )
         return nil;
 
-    [ MASRegisteredHotKeys() setObject: hotKey forKey: monitor ];
-    
+    MASRegisteredHotKeys()[ monitor ] = hotKey;
+
     return monitor;
     }
 
 + ( void ) removeGlobalHotkeyMonitor: ( id )_Monitor;
-{
-    if (_Monitor == nil) return;
-    NSMutableDictionary *registeredHotKeys = MASRegisteredHotKeys();
-    MASShortcutHotKey *hotKey = [registeredHotKeys objectForKey: _Monitor];
-    if (hotKey)
     {
-        [hotKey uninstallExistingHotKey];
-    }
-    [registeredHotKeys removeObjectForKey:_Monitor];
+    if ( !_Monitor )
+        return;
 
-    if (registeredHotKeys.count == 0) {
+    NSMutableDictionary* registeredHotKeys = MASRegisteredHotKeys();
+    MASShortcutHotKey* hotKey = [ registeredHotKeys objectForKey: _Monitor ];
+
+    if ( hotKey )
+        [ hotKey uninstallExistingHotKey ];
+
+    [ registeredHotKeys removeObjectForKey: _Monitor ];
+
+    if ( registeredHotKeys.count == 0 )
         UninstallEventHandler();
     }
-}
 
 @end // MASShortcut + MASShorcutMonitoring
 
@@ -96,13 +97,14 @@ void UninstallEventHandler();
     }
 
 #pragma mark -
-- (void)uninstallExistingHotKey
-{
-    if (_carbonHotKey) {
-        UnregisterEventHotKey(_carbonHotKey);
+- ( void ) uninstallExistingHotKey
+    {
+    if ( _carbonHotKey )
+        {
+        UnregisterEventHotKey( _carbonHotKey );
         _carbonHotKey = NULL;
+        }
     }
-}
 
 @end // MASShortcutHotKey class implementation
 

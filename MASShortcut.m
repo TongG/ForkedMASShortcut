@@ -296,10 +296,12 @@ BOOL MASShortcutAllowsAnyHotkeyWithOptionModifier = NO;
     {
     // Allow any function key with any combination of modifiers
     BOOL includesFunctionKey = ( ( _keyCode == kVK_F1) || ( _keyCode == kVK_F2 ) || ( _keyCode == kVK_F3 ) || ( _keyCode == kVK_F4 )
-                                    || ( _keyCode == kVK_F5 ) || ( _keyCode == kVK_F6 ) || ( _keyCode == kVK_F7 ) || ( _keyCode == kVK_F8 )
-                                    || ( _keyCode == kVK_F9 ) || ( _keyCode == kVK_F10 ) || ( _keyCode == kVK_F11 ) || ( _keyCode == kVK_F12 )
-                                    || ( _keyCode == kVK_F13 ) || ( _keyCode == kVK_F14 ) || ( _keyCode == kVK_F15 ) || ( _keyCode == kVK_F16 )
-                                    || ( _keyCode == kVK_F17 ) || ( _keyCode == kVK_F18 ) || ( _keyCode == kVK_F19 ) || ( _keyCode == kVK_F20 ) );
+                                    || ( _keyCode == kVK_F5 )   || ( _keyCode == kVK_F6 )   || ( _keyCode == kVK_F7 )   || ( _keyCode == kVK_F8 )
+                                    || ( _keyCode == kVK_F9 )   || ( _keyCode == kVK_F10 )  || ( _keyCode == kVK_F11 )  || ( _keyCode == kVK_F12 )
+                                    || ( _keyCode == kVK_F13 )  || ( _keyCode == kVK_F14 )  || ( _keyCode == kVK_F15 )  || ( _keyCode == kVK_F16 )
+                                    || ( _keyCode == kVK_F17 )  || ( _keyCode == kVK_F18 )  || ( _keyCode == kVK_F19 )  || ( _keyCode == kVK_F20 ) );
+
+    // Short-circuit evaluation for function key
     if ( includesFunctionKey )
         return YES;
 
@@ -309,81 +311,110 @@ BOOL MASShortcutAllowsAnyHotkeyWithOptionModifier = NO;
         return NO;
 
     // Allow any hotkey containing Control or Command modifier
-    BOOL includesCommand = ((_modifierFlags & NSCommandKeyMask) > 0);
-    BOOL includesControl = ((_modifierFlags & NSControlKeyMask) > 0);
-    if (includesCommand || includesControl) return YES;
+    BOOL includesCommand = ( ( _modifierFlags & NSCommandKeyMask ) > 0 );
+    BOOL includesControl = ( ( _modifierFlags & NSControlKeyMask ) > 0 );
+    if ( includesCommand || includesControl )
+        return YES;
 
     // Allow Option key only in selected cases
-    BOOL includesOption = ((_modifierFlags & NSAlternateKeyMask) > 0);
-    if (includesOption) {
-
+    BOOL includesOption = ( ( _modifierFlags & NSAlternateKeyMask ) > 0 );
+    if ( includesOption )
+        {
         // Always allow Option-Space and Option-Escape because they do not have any bind system commands
-        if ((_keyCode == kVK_Space) || (_keyCode == kVK_Escape)) return YES;
+        if ( ( _keyCode == kVK_Space ) || ( _keyCode == kVK_Escape ) )
+            return YES;
 
         // Allow Option modifier with any key even if it will break the system binding
-        if ([[self class] allowsAnyHotkeyWithOptionModifier]) return YES;
-    }
+        if ( [ [ self class ] allowsAnyHotkeyWithOptionModifier ] )
+            return YES;
+        }
 
     // The hotkey does not have any modifiers or violates system bindings
     return NO;
     }
 
-- (BOOL)isKeyEquivalent:(NSString *)keyEquivalent flags:(NSUInteger)flags takenInMenu:(NSMenu *)menu error:(NSError **)outError
-{
-    for (NSMenuItem *menuItem in menu.itemArray) {
-        if (menuItem.hasSubmenu && [self isKeyEquivalent:keyEquivalent flags:flags takenInMenu:menuItem.submenu error:outError]) return YES;
+- ( BOOL ) isKeyEquivalent: ( NSString* )_KeyEquivalent
+                     flags: ( NSUInteger )_Flags
+               takenInMenu: ( NSMenu* )_Menu
+                     error: ( NSError** )_OutError
+    {
+    for ( NSMenuItem* menuItem in _Menu.itemArray )
+        {
+        if ( menuItem.hasSubmenu
+            && [ self isKeyEquivalent: _KeyEquivalent
+                                flags: _Flags
+                          takenInMenu: menuItem.submenu
+                                error: _OutError ] )
+            return YES;
         
-        BOOL equalFlags = (MASShortcutClear(menuItem.keyEquivalentModifierMask) == flags);
-        BOOL equalHotkeyLowercase = [menuItem.keyEquivalent.lowercaseString isEqualToString:keyEquivalent];
+        BOOL equalFlags = ( MASShortcutClear( menuItem.keyEquivalentModifierMask ) == _Flags );
+        BOOL equalHotkeyLowercase = [ menuItem.keyEquivalent.lowercaseString isEqualToString: _KeyEquivalent ];
         
         // Check if the cases are different, we know ours is lower and that shift is included in our modifiers
-        // If theirs is capitol, we need to add shift to their modifiers
-        if (equalHotkeyLowercase && ![menuItem.keyEquivalent isEqualToString:keyEquivalent]) {
-            equalFlags = (MASShortcutClear(menuItem.keyEquivalentModifierMask | NSShiftKeyMask) == flags);
-        }
+        // If theirs is capital, we need to add shift to their modifiers
+        if ( equalHotkeyLowercase && ![ menuItem.keyEquivalent isEqualToString: _KeyEquivalent ] )
+            equalFlags = ( MASShortcutClear( menuItem.keyEquivalentModifierMask | NSShiftKeyMask ) == _Flags );
         
-        if (equalFlags && equalHotkeyLowercase) {
-            if (outError) {
-                NSString *format = NSLocalizedString(@"This shortcut cannot be used used because it is already used by the menu item ‘%@’.",
-                                                     @"Message for alert when shortcut is already used");
-                NSDictionary *info = [NSDictionary dictionaryWithObject:[NSString stringWithFormat:format, menuItem.title]
-                                                                 forKey:NSLocalizedDescriptionKey];
-                *outError = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:info];
-            }
-            return YES;
-        }
-    }
-    return NO;
-}
+        if ( equalFlags && equalHotkeyLowercase )
+            {
+            if (_OutError)
+                {
+                NSString* format = NSLocalizedString( @"This shortcut cannot be used because it is already used by the menu item ‘%@’.",
+                                                      @"Message for alert when shortcut is already used" );
 
-- (BOOL)isTakenError:(NSError **)outError
-{
-	CFArrayRef globalHotKeys;
-	if (CopySymbolicHotKeys(&globalHotKeys) == noErr) {
-
-        // Enumerate all global hotkeys and check if any of them matches current shortcut
-        for (CFIndex i = 0, count = CFArrayGetCount(globalHotKeys); i < count; i++) {
-            CFDictionaryRef hotKeyInfo = CFArrayGetValueAtIndex(globalHotKeys, i);
-            CFNumberRef code = CFDictionaryGetValue(hotKeyInfo, kHISymbolicHotKeyCode);
-            CFNumberRef flags = CFDictionaryGetValue(hotKeyInfo, kHISymbolicHotKeyModifiers);
-
-            if (([(NSNumber *)code unsignedIntegerValue] == self.keyCode) &&
-                ([(NSNumber *)flags unsignedIntegerValue] == self.carbonFlags)) {
-
-                if (outError) {
-                    NSString *description = NSLocalizedString(@"This combination cannot be used used because it is already used by a system-wide "
-                                                              @"keyboard shortcut.\nIf you really want to use this key combination, most shortcuts "
-                                                              @"can be changed in the Keyboard & Mouse panel in System Preferences.",
-                                                              @"Message for alert when shortcut is already used by the system");
-                    NSDictionary *info = [NSDictionary dictionaryWithObject:description forKey:NSLocalizedDescriptionKey];
-                    *outError = [NSError errorWithDomain:NSCocoaErrorDomain code:0 userInfo:info];
+                NSDictionary* info = @{ NSLocalizedDescriptionKey : [ NSString stringWithFormat: format, menuItem.title ] };
+                *_OutError = [ NSError errorWithDomain: NSCocoaErrorDomain code: 0 userInfo: info ];
                 }
-                return YES;
+
+            return YES;
             }
         }
-        CFRelease(globalHotKeys);
+
+    return NO;
     }
-    return [self isKeyEquivalent:self.keyCodeStringForKeyEquivalent flags:self.modifierFlags takenInMenu:[NSApp mainMenu] error:outError];
-}
+
+- ( BOOL ) isTakenError: ( NSError** )_OutError
+    {
+	CFArrayRef globalHotKeys;
+
+	if ( CopySymbolicHotKeys( &globalHotKeys ) == noErr )
+        {
+        // Enumerate all global hotkeys and check if any of them matches current shortcut (self)
+        for ( CFIndex index = 0, count = CFArrayGetCount( globalHotKeys ); index < count; index++ )
+            {
+            CFDictionaryRef hotKeyInfo = CFArrayGetValueAtIndex( globalHotKeys, index );
+            CFNumberRef keyVirtualCode = CFDictionaryGetValue( hotKeyInfo, kHISymbolicHotKeyCode );
+            CFNumberRef keyModifiers = CFDictionaryGetValue( hotKeyInfo, kHISymbolicHotKeyModifiers );
+
+            if ( ( [ ( __bridge NSNumber* )keyVirtualCode unsignedIntegerValue ] == self.keyCode )
+                    && ( [ ( __bridge NSNumber* )keyModifiers unsignedIntegerValue ] == self.carbonFlags ) )
+                {
+                if (_OutError)
+                    {
+                    NSString *description = NSLocalizedString( @"This combination cannot be used used because it is already used by a system-wide "
+                                                               @"keyboard shortcut.\nIf you really want to use this key combination, most shortcuts "
+                                                               @"can be changed in the Keyboard & Mouse panel in System Preferences."
+                                                             , @"Message for alert when shortcut is already used by the system"
+                                                             );
+
+                    NSDictionary* info = @{ NSLocalizedDescriptionKey : description };
+                    *_OutError = [ NSError errorWithDomain: NSCocoaErrorDomain code: 0 userInfo: info ];
+                    }
+
+                return YES;
+                }
+            }
+
+        CFRelease( globalHotKeys );
+        }
+
+    /* After checking for system-wide keyboard shortcut
+     * we have to check if any of menu items in mainMenu matches current shortcut (self)
+     */
+    return [ self isKeyEquivalent: self.keyCodeStringForKeyEquivalent
+                            flags: self.modifierFlags
+                      takenInMenu: [ NSApp mainMenu ]
+                            error: _OutError ];
+    }
 
 @end

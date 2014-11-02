@@ -64,7 +64,13 @@ enum { kMASShortcutGlyphEject = 0x23CF
 
 + ( MASShortcut* ) shortcutWithData: ( NSData* )_Data;
 
+/* Check if any of shortcuts in mainMenu of current application and system-wide set maches current shorcut */
 - ( BOOL ) isTakenError: ( NSError** )_Error;
+
+- ( BOOL ) isKeyEquivalent: ( NSString* )_KeyEquivalent
+                     flags: ( NSUInteger )_Flags
+               takenInMenu: ( NSMenu* )_Menu
+                     error: ( NSError** )_OutError;
 
 // The following API enable hotkeys with the ⌥ key as the only modifier
 // For example, ⌥G will not generate © and ⌥R will not paste ®

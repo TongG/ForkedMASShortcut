@@ -346,18 +346,18 @@ BOOL MASShortcutAllowsAnyHotkeyWithOptionModifier = NO;
                           takenInMenu: menuItem.submenu
                                 error: _OutError ] )
             return YES;
-        
+
         BOOL equalFlags = ( MASShortcutClear( menuItem.keyEquivalentModifierMask ) == _Flags );
         BOOL equalHotkeyLowercase = [ menuItem.keyEquivalent.lowercaseString isEqualToString: _KeyEquivalent ];
         
-        // Check if the cases are different, we know ours is lower and that shift is included in our modifiers
-        // If theirs is capital, we need to add shift to their modifiers
+        /* Check if the cases are different, we know ours is lower and that shift is included in our modifiers
+         * If theirs is capital, we need to add shift to their modifiers */
         if ( equalHotkeyLowercase && ![ menuItem.keyEquivalent isEqualToString: _KeyEquivalent ] )
             equalFlags = ( MASShortcutClear( menuItem.keyEquivalentModifierMask | NSShiftKeyMask ) == _Flags );
         
         if ( equalFlags && equalHotkeyLowercase )
             {
-            if (_OutError)
+            if ( _OutError )
                 {
                 NSString* format = NSLocalizedString( @"This shortcut cannot be used because it is already used by the menu item ‘%@’.",
                                                       @"Message for alert when shortcut is already used" );
@@ -373,6 +373,7 @@ BOOL MASShortcutAllowsAnyHotkeyWithOptionModifier = NO;
     return NO;
     }
 
+/* Check if any of shortcuts in mainMenu of current application and system-wide set maches current shorcut */
 - ( BOOL ) isTakenError: ( NSError** )_OutError
     {
 	CFArrayRef globalHotKeys;
@@ -391,13 +392,16 @@ BOOL MASShortcutAllowsAnyHotkeyWithOptionModifier = NO;
                 {
                 if ( _OutError )
                     {
-                    NSString *description = NSLocalizedString( @"This combination cannot be used used because it is already used by a system-wide "
-                                                               @"keyboard shortcut.\nIf you really want to use this key combination, most shortcuts "
-                                                               @"can be changed in the Keyboard & Mouse panel in System Preferences."
-                                                             , @"Message for alert when shortcut is already used by the system"
-                                                             );
+                    NSString* errorDescription = NSLocalizedString( @"This combination (%@) cannot be used because it is already used by a system-wide keyboard shortcut.", nil );
+                    NSString* recoverySuggestion = NSLocalizedString( @"If you really want to use this key combination, most shortcuts "
+                                                                      @"can be changed in the Keyboard & Mouse panel in System Preferences."
+                                                                    , @"Message for alert when shortcut is already used by the system"
+                                                                    );
 
-                    NSDictionary* info = @{ NSLocalizedDescriptionKey : description };
+                    NSDictionary* info = @{ NSLocalizedDescriptionKey : [ NSString stringWithFormat: errorDescription, self.description ]
+                                          , NSLocalizedRecoverySuggestionErrorKey: recoverySuggestion
+                                          };
+
                     *_OutError = [ NSError errorWithDomain: NSCocoaErrorDomain code: 0 userInfo: info ];
                     }
 

@@ -401,6 +401,7 @@ BOOL MASShortcutAllowsAnyHotkeyWithOptionModifier = NO;
                     *_OutError = [ NSError errorWithDomain: NSCocoaErrorDomain code: 0 userInfo: info ];
                     }
 
+                CFRelease( globalHotKeys );
                 return YES;
                 }
             }

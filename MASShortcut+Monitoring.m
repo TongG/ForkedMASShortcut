@@ -19,7 +19,9 @@ void UninstallEventHandler();
 @property ( nonatomic, readonly ) EventHotKeyRef carbonHotKey;
 @property ( nonatomic, readonly ) UInt32 carbonHotKeyID;
 
-- ( id ) initWithShortcut: ( MASShortcut* )_Shortcut handler: ( void (^)() )_Handler;
+- ( id ) initWithShortcut: ( MASShortcut* )_Shortcut
+                  handler: ( void (^)() )_Handler;
+
 - ( void ) uninstallExistingHotKey;
 
 @end // MASShortcutHotKey class interface
@@ -72,16 +74,18 @@ void UninstallEventHandler();
 @synthesize carbonHotKey = _carbonHotKey;
 
 #pragma mark Initializers & deallocator
-- ( id ) initWithShortcut: ( MASShortcut* )_Shortcut handler: ( void (^)() )_Handler;
+- ( id ) initWithShortcut: ( MASShortcut* )_Shortcut
+                  handler: ( void (^)() )_Handler;
     {
     if ( self = [ super init ] )
         {
-        _shortcut = [_Shortcut retain];
-        _handler = [_Handler copy];
+        _shortcut = [ _Shortcut retain ];
+        _handler = [ _Handler copy ];
 
-        if (!InstallHotkeyWithShortcut(_Shortcut, &_carbonHotKeyID, &_carbonHotKey))
+        if ( !InstallHotkeyWithShortcut( _Shortcut, &_carbonHotKeyID, &_carbonHotKey ) )
             {
-            [self release];
+            // Conquer or to die😈
+            [ self release ];
             self = nil;
             }
         }
@@ -121,64 +125,95 @@ NSMutableDictionary* MASRegisteredHotKeys()
     }
 
 FourCharCode const kMASShortcutSignature = 'MASS';
-
-BOOL InstallHotkeyWithShortcut(MASShortcut *shortcut, UInt32 *outCarbonHotKeyID, EventHotKeyRef *outCarbonHotKey)
-{
-    if ((shortcut == nil) || !InstallCommonEventHandler()) return NO;
+BOOL InstallHotkeyWithShortcut( MASShortcut* _Shortcut, UInt32* _OutCarbonHotKeyID, EventHotKeyRef* _OutCarbonHotKey )
+    {
+    if ( ( _Shortcut == nil ) || !InstallCommonEventHandler() )
+        return NO;
 
     static UInt32 sCarbonHotKeyID = 0;
 	EventHotKeyID hotKeyID = { .signature = kMASShortcutSignature, .id = ++ sCarbonHotKeyID };
     EventHotKeyRef carbonHotKey = NULL;
-    if (RegisterEventHotKey(shortcut.carbonKeyCode, shortcut.carbonFlags, hotKeyID, GetEventDispatcherTarget(), kEventHotKeyExclusive, &carbonHotKey) != noErr) {
+    if ( RegisterEventHotKey( _Shortcut.carbonKeyCode
+                            , _Shortcut.carbonFlags
+                            , hotKeyID
+                            , GetEventDispatcherTarget()
+                            , kEventHotKeyExclusive
+                            , &carbonHotKey
+                            ) != noErr )
         return NO;
+
+    if ( _OutCarbonHotKeyID )
+        *_OutCarbonHotKeyID = hotKeyID.id;
+
+    if ( _OutCarbonHotKey )
+        *_OutCarbonHotKey = carbonHotKey;
+
+    return YES;
     }
 
-    if (outCarbonHotKeyID) *outCarbonHotKeyID = hotKeyID.id;
-    if (outCarbonHotKey) *outCarbonHotKey = carbonHotKey;
-    return YES;
-}
-
-static OSStatus CarbonCallback(EventHandlerCallRef inHandlerCallRef, EventRef inEvent, void *inUserData)
-{
-	if (GetEventClass(inEvent) != kEventClassKeyboard) return noErr;
+static OSStatus CarbonCallback( EventHandlerCallRef _InHandlerCallRef, EventRef _InEvent, void* _InUserData )
+    {
+	if ( GetEventClass( _InEvent ) != kEventClassKeyboard )
+        return noErr;
 
 	EventHotKeyID hotKeyID;
-	OSStatus status = GetEventParameter(inEvent, kEventParamDirectObject, typeEventHotKeyID, NULL, sizeof(hotKeyID), NULL, &hotKeyID);
-	if (status != noErr) return status;
+	OSStatus status = GetEventParameter( _InEvent
+                                       , kEventParamDirectObject
+                                       , typeEventHotKeyID
+                                       , NULL
+                                       , sizeof( hotKeyID )
+                                       , NULL
+                                       , &hotKeyID
+                                       );
+	if ( status != noErr )
+        return status;
 
-	if (hotKeyID.signature != kMASShortcutSignature) return noErr;
+	if ( hotKeyID.signature != kMASShortcutSignature )
+        return noErr;
 
-    [MASRegisteredHotKeys() enumerateKeysAndObjectsUsingBlock:^(id key, MASShortcutHotKey *hotKey, BOOL *stop) {
-        if (hotKeyID.id == hotKey.carbonHotKeyID) {
-            if (hotKey.handler) {
-                hotKey.handler();
-            }
-            *stop = YES;
-        }
-    }];
+    [ MASRegisteredHotKeys() enumerateKeysAndObjectsUsingBlock:
+        ^( id _Key, MASShortcutHotKey* _HotKey, BOOL* _Stop)
+            {
+            if ( hotKeyID.id == _HotKey.carbonHotKeyID )
+                {
+                if ( _HotKey.handler )
+                    _HotKey.handler();
+
+                *_Stop = YES;
+                }
+            } ];
 
 	return noErr;
-}
+    }
 
 static EventHandlerRef sEventHandler = NULL;
-
 BOOL InstallCommonEventHandler()
-{
-    if (sEventHandler == NULL) {
+    {
+    if ( !sEventHandler )
+        {
         EventTypeSpec hotKeyPressedSpec = { .eventClass = kEventClassKeyboard, .eventKind = kEventHotKeyPressed };
-        OSStatus status = InstallEventHandler(GetEventDispatcherTarget(), CarbonCallback, 1, &hotKeyPressedSpec, NULL, &sEventHandler);
-        if (status != noErr) {
+        OSStatus status = InstallEventHandler( GetEventDispatcherTarget()
+                                             , CarbonCallback
+                                             , 1
+                                             , &hotKeyPressedSpec
+                                             , NULL
+                                             , &sEventHandler
+                                             );
+        if ( status != noErr )
+            {
             sEventHandler = NULL;
             return NO;
+            }
         }
-    }
+
     return YES;
-}
+    }
 
 void UninstallEventHandler()
-{
-    if (sEventHandler) {
-        RemoveEventHandler(sEventHandler);
+    {
+    if ( sEventHandler )
+        {
+        RemoveEventHandler( sEventHandler );
         sEventHandler = NULL;
+        }
     }
-}

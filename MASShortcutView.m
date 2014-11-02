@@ -379,11 +379,7 @@ void *kUserDataHint = &kUserDataHint;
                             [weakSelf activateEventMonitoring:NO];
 
                             [ self presentError: error ];
-//                            NSString *format = NSLocalizedString(@"The key combination %@ cannot be used",
-//                                                                 @"Title for alert when shortcut is already used");
-//                            NSRunCriticalAlertPanel(format, error.localizedDescription,
-//                                                    NSLocalizedString(@"OK", @"Alert button when shortcut is already used"),
-//                                                    nil, nil, shortcut);
+
                             weakSelf.shortcutPlaceholder = nil;
                             [weakSelf activateResignObserver:YES];
                             [weakSelf activateEventMonitoring:YES];

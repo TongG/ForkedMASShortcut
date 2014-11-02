@@ -1,66 +1,68 @@
 #import "MASShortcut+Monitoring.h"
 
-NSMutableDictionary *MASRegisteredHotKeys();
+NSMutableDictionary* MASRegisteredHotKeys();
 BOOL InstallCommonEventHandler();
-BOOL InstallHotkeyWithShortcut(MASShortcut *shortcut, UInt32 *outCarbonHotKeyID, EventHotKeyRef *outCarbonHotKey);
+BOOL InstallHotkeyWithShortcut( MASShortcut* _Shortcut, UInt32* _OutCarbonHotKeyID, EventHotKeyRef* _OutCarbonHotKey );
 void UninstallEventHandler();
 
-#pragma mark -
-
-@interface MASShortcutHotKey : NSObject {
-    MASShortcut *_shortcut;
-    void (^_handler)();
+#pragma mark MASShortcutHotKey class interface
+@interface MASShortcutHotKey : NSObject
+    {
+    MASShortcut* _shortcut;
+    void ( ^_handler )();
     EventHotKeyRef _carbonHotKey;
     UInt32 _carbonHotKeyID;
-}
+    }
 
-@property (nonatomic, readonly, retain) MASShortcut *shortcut;
-@property (nonatomic, readonly, copy) void (^handler)();
-@property (nonatomic, readonly) EventHotKeyRef carbonHotKey;
-@property (nonatomic, readonly) UInt32 carbonHotKeyID;
+@property ( nonatomic, readonly, retain ) MASShortcut* shortcut;
+@property ( nonatomic, readonly, copy ) void ( ^handler )();
+@property ( nonatomic, readonly ) EventHotKeyRef carbonHotKey;
+@property ( nonatomic, readonly ) UInt32 carbonHotKeyID;
 
-- (id)initWithShortcut:(MASShortcut *)shortcut handler:(void (^)())handler;
-- (void)uninstallExistingHotKey;
+- ( id ) initWithShortcut: ( MASShortcut* )_Shortcut handler: ( void (^)() )_Handler;
+- ( void ) uninstallExistingHotKey;
 
-@end
+@end // MASShortcutHotKey class interface
 
-#pragma mark -
+#pragma mark MASShortcut + MASShorcutMonitoring
+@implementation MASShortcut ( MASShorcutMonitoring )
 
-@implementation MASShortcut (Monitoring)
++ ( id ) addGlobalHotkeyMonitorWithShortcut: ( MASShortcut* )_Shortcut
+                                    handler: ( void (^)() )_Handler
+    {
+    NSString* monitor = [ NSString stringWithFormat: @"%@", _Shortcut.description ];
+    if ( [ MASRegisteredHotKeys() objectForKey: monitor ] )
+        return nil;
 
-+ (id)addGlobalHotkeyMonitorWithShortcut:(MASShortcut *)shortcut handler:(void (^)())handler
-{
-    NSString *monitor = [NSString stringWithFormat:@"%@", shortcut.description];
-    if ([MASRegisteredHotKeys() objectForKey:monitor]) return nil;
+    MASShortcutHotKey* hotKey = [ [ [ MASShortcutHotKey alloc ] initWithShortcut: _Shortcut
+                                                                         handler: _Handler ] autorelease ];
+    if ( hotKey == nil )
+        return nil;
 
-    MASShortcutHotKey *hotKey = [[[MASShortcutHotKey alloc] initWithShortcut:shortcut handler:handler] autorelease];
-    if (hotKey == nil) return nil;
-
-    [MASRegisteredHotKeys() setObject:hotKey forKey:monitor];
+    [ MASRegisteredHotKeys() setObject: hotKey forKey: monitor ];
     
     return monitor;
-}
+    }
 
-+ (void)removeGlobalHotkeyMonitor:(id)monitor
++ ( void ) removeGlobalHotkeyMonitor: ( id )_Monitor;
 {
-    if (monitor == nil) return;
+    if (_Monitor == nil) return;
     NSMutableDictionary *registeredHotKeys = MASRegisteredHotKeys();
-    MASShortcutHotKey *hotKey = [registeredHotKeys objectForKey: monitor];
+    MASShortcutHotKey *hotKey = [registeredHotKeys objectForKey: _Monitor];
     if (hotKey)
     {
         [hotKey uninstallExistingHotKey];
     }
-    [registeredHotKeys removeObjectForKey:monitor];
+    [registeredHotKeys removeObjectForKey:_Monitor];
 
     if (registeredHotKeys.count == 0) {
         UninstallEventHandler();
     }
 }
 
-@end
+@end // MASShortcut + MASShorcutMonitoring
 
-#pragma mark -
-
+#pragma mark MASShortcutHotKey class implementation
 @implementation MASShortcutHotKey
 
 @synthesize carbonHotKeyID = _carbonHotKeyID;
@@ -68,30 +70,32 @@ void UninstallEventHandler();
 @synthesize shortcut = _shortcut;
 @synthesize carbonHotKey = _carbonHotKey;
 
-#pragma mark -
+#pragma mark Initializers & deallocator
+- ( id ) initWithShortcut: ( MASShortcut* )_Shortcut handler: ( void (^)() )_Handler;
+    {
+    if ( self = [ super init ] )
+        {
+        _shortcut = [_Shortcut retain];
+        _handler = [_Handler copy];
 
-- (id)initWithShortcut:(MASShortcut *)shortcut handler:(void (^)())handler
-{
-    self = [super init];
-    if (self) {
-        _shortcut = [shortcut retain];
-        _handler = [handler copy];
-
-        if (!InstallHotkeyWithShortcut(shortcut, &_carbonHotKeyID, &_carbonHotKey)){
+        if (!InstallHotkeyWithShortcut(_Shortcut, &_carbonHotKeyID, &_carbonHotKey))
+            {
             [self release];
             self = nil;
+            }
         }
-    }
+
     return self;
-}
+    }
 
-- (void)dealloc
-{
-    [_shortcut release];
-    [self uninstallExistingHotKey];
-    [super dealloc];
-}
+- ( void ) dealloc
+    {
+    [ _shortcut release ];
+    [ self uninstallExistingHotKey ];
+    [ super dealloc ];
+    }
 
+#pragma mark -
 - (void)uninstallExistingHotKey
 {
     if (_carbonHotKey) {
@@ -100,21 +104,19 @@ void UninstallEventHandler();
     }
 }
 
-@end
+@end // MASShortcutHotKey class implementation
 
-#pragma mark - Carbon magic
+#pragma mark Carbon magic
+NSMutableDictionary* MASRegisteredHotKeys()
+    {
+    NSMutableDictionary static* shared = nil;
+    dispatch_once_t static onceToken;
 
-NSMutableDictionary *MASRegisteredHotKeys()
-{
-    static NSMutableDictionary *shared = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        shared = [[NSMutableDictionary dictionary] retain];
-    });
+    dispatch_once( &onceToken,
+        ^{ shared = [ [ NSMutableDictionary dictionary ] retain ]; } );
+
     return shared;
-}
-
-#pragma mark -
+    }
 
 FourCharCode const kMASShortcutSignature = 'MASS';
 
@@ -155,8 +157,6 @@ static OSStatus CarbonCallback(EventHandlerCallRef inHandlerCallRef, EventRef in
 
 	return noErr;
 }
-
-#pragma mark -
 
 static EventHandlerRef sEventHandler = NULL;
 

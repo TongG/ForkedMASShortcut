@@ -1,8 +1,11 @@
 #import "MASShortcut.h"
 
-@interface MASShortcut (Monitoring)
+#pragma mark MASShortcut + MASShorcutMonitoring
+@interface MASShortcut ( MASShorcutMonitoring )
 
-+ (id)addGlobalHotkeyMonitorWithShortcut:(MASShortcut *)shortcut handler:(void (^)())handler;
-+ (void)removeGlobalHotkeyMonitor:(id)monitor;
++ ( id ) addGlobalHotkeyMonitorWithShortcut: ( MASShortcut* )_Shortcut
+                                    handler: ( void (^)() )_Handler;
 
-@end
++ ( void ) removeGlobalHotkeyMonitor: ( id )_Monitor;
+
+@end // MASShortcut + MASShorcutMonitoring

@@ -139,150 +139,174 @@ NSString* const kMASShortcutModifierFlagsArchivedKey = @"ModifierFlags";
     return [ keyCodeString lowercaseString ];
     }
 
-- (NSString *)keyCodeString
-{
+- ( NSString* ) keyCodeString
+    {
     // Some key codes don't have an equivalent
-    switch (self.keyCode) {
-        case NSNotFound: return @"";
-        case kVK_F1: return @"F1";
-        case kVK_F2: return @"F2";
-        case kVK_F3: return @"F3";
-        case kVK_F4: return @"F4";
-        case kVK_F5: return @"F5";
-        case kVK_F6: return @"F6";
-        case kVK_F7: return @"F7";
-        case kVK_F8: return @"F8";
-        case kVK_F9: return @"F9";
-        case kVK_F10: return @"F10";
-        case kVK_F11: return @"F11";
-        case kVK_F12: return @"F12";
-        case kVK_F13: return @"F13";
-        case kVK_F14: return @"F14";
-        case kVK_F15: return @"F15";
-        case kVK_F16: return @"F16";
-        case kVK_Space: return NSLocalizedString(@"Space", @"Shortcut glyph name for SPACE key");
-        case kVK_Escape: return MASShortcutChar(kMASShortcutGlyphEscape);
-        case kVK_Delete: return MASShortcutChar(kMASShortcutGlyphDeleteLeft);
-        case kVK_ForwardDelete: return MASShortcutChar(kMASShortcutGlyphDeleteRight);
-        case kVK_LeftArrow: return MASShortcutChar(kMASShortcutGlyphLeftArrow);
-        case kVK_RightArrow: return MASShortcutChar(kMASShortcutGlyphRightArrow);
-        case kVK_UpArrow: return MASShortcutChar(kMASShortcutGlyphUpArrow);
-        case kVK_DownArrow: return MASShortcutChar(kMASShortcutGlyphDownArrow);
-        case kVK_Help: return MASShortcutChar(kMASShortcutGlyphHelp);
-        case kVK_PageUp: return MASShortcutChar(kMASShortcutGlyphPageUp);
-        case kVK_PageDown: return MASShortcutChar(kMASShortcutGlyphPageDown);
-        case kVK_Tab: return MASShortcutChar(kMASShortcutGlyphTabRight);
-        case kVK_Return: return MASShortcutChar(kMASShortcutGlyphReturnR2L);
-            
-        // Keypad
-        case kVK_ANSI_Keypad0: return @"0";
-        case kVK_ANSI_Keypad1: return @"1";
-        case kVK_ANSI_Keypad2: return @"2";
-        case kVK_ANSI_Keypad3: return @"3";
-        case kVK_ANSI_Keypad4: return @"4";
-        case kVK_ANSI_Keypad5: return @"5";
-        case kVK_ANSI_Keypad6: return @"6";
-        case kVK_ANSI_Keypad7: return @"7";
-        case kVK_ANSI_Keypad8: return @"8";
-        case kVK_ANSI_Keypad9: return @"9";
-        case kVK_ANSI_KeypadDecimal: return @".";
-        case kVK_ANSI_KeypadMultiply: return @"*";
-        case kVK_ANSI_KeypadPlus: return @"+";
-        case kVK_ANSI_KeypadClear: return MASShortcutChar(kMASShortcutGlyphPadClear);
-        case kVK_ANSI_KeypadDivide: return @"/";
-        case kVK_ANSI_KeypadEnter: return MASShortcutChar(kMASShortcutGlyphReturn);
-        case kVK_ANSI_KeypadMinus: return @"–";
-        case kVK_ANSI_KeypadEquals: return @"=";
-            
-        // Hardcode
-        case 119: return MASShortcutChar(kMASShortcutGlyphSoutheastArrow);
-        case 115: return MASShortcutChar(kMASShortcutGlyphNorthwestArrow);
-    }
+    switch ( self.keyCode )
+        {
+    case NSNotFound:            return @"";
+    case kVK_F1:                return @"F1";
+    case kVK_F2:                return @"F2";
+    case kVK_F3:                return @"F3";
+    case kVK_F4:                return @"F4";
+    case kVK_F5:                return @"F5";
+    case kVK_F6:                return @"F6";
+    case kVK_F7:                return @"F7";
+    case kVK_F8:                return @"F8";
+    case kVK_F9:                return @"F9";
+    case kVK_F10:               return @"F10";
+    case kVK_F11:               return @"F11";
+    case kVK_F12:               return @"F12";
+    case kVK_F13:               return @"F13";
+    case kVK_F14:               return @"F14";
+    case kVK_F15:               return @"F15";
+    case kVK_F16:               return @"F16";
+    case kVK_Space:             return NSLocalizedString( @"Space", @"Shortcut glyph name for SPACE key" );
+    case kVK_Escape:            return MASShortcutChar( kMASShortcutGlyphEscape );
+    case kVK_Delete:            return MASShortcutChar( kMASShortcutGlyphDeleteLeft );
+    case kVK_ForwardDelete:     return MASShortcutChar( kMASShortcutGlyphDeleteRight );
+    case kVK_LeftArrow:         return MASShortcutChar( kMASShortcutGlyphLeftArrow );
+    case kVK_RightArrow:        return MASShortcutChar( kMASShortcutGlyphRightArrow );
+    case kVK_UpArrow:           return MASShortcutChar( kMASShortcutGlyphUpArrow );
+    case kVK_DownArrow:         return MASShortcutChar( kMASShortcutGlyphDownArrow );
+    case kVK_Help:              return MASShortcutChar( kMASShortcutGlyphHelp );
+    case kVK_PageUp:            return MASShortcutChar( kMASShortcutGlyphPageUp );
+    case kVK_PageDown:          return MASShortcutChar( kMASShortcutGlyphPageDown );
+    case kVK_Tab:               return MASShortcutChar( kMASShortcutGlyphTabRight );
+    case kVK_Return:            return MASShortcutChar( kMASShortcutGlyphReturnR2L );
+        
+    // Keypad
+    case kVK_ANSI_Keypad0:      return @"0";
+    case kVK_ANSI_Keypad1:      return @"1";
+    case kVK_ANSI_Keypad2:      return @"2";
+    case kVK_ANSI_Keypad3:      return @"3";
+    case kVK_ANSI_Keypad4:      return @"4";
+    case kVK_ANSI_Keypad5:      return @"5";
+    case kVK_ANSI_Keypad6:      return @"6";
+    case kVK_ANSI_Keypad7:      return @"7";
+    case kVK_ANSI_Keypad8:      return @"8";
+    case kVK_ANSI_Keypad9:      return @"9";
+    case kVK_ANSI_KeypadDecimal:    return @".";
+    case kVK_ANSI_KeypadMultiply:   return @"*";
+    case kVK_ANSI_KeypadPlus:   return @"+";
+    case kVK_ANSI_KeypadClear:  return MASShortcutChar( kMASShortcutGlyphPadClear );
+    case kVK_ANSI_KeypadDivide: return @"/";
+    case kVK_ANSI_KeypadEnter:  return MASShortcutChar( kMASShortcutGlyphReturn );
+    case kVK_ANSI_KeypadMinus:  return @"–";
+    case kVK_ANSI_KeypadEquals: return @"=";
+        
+    // Hardcode
+    case 119:   return MASShortcutChar( kMASShortcutGlyphSoutheastArrow );
+    case 115:   return MASShortcutChar( kMASShortcutGlyphNorthwestArrow );
+        }
     
     // Everything else should be printable so look it up in the current keyboard
     OSStatus error = noErr;
-    NSString *keystroke = nil;
+    NSString* keystroke = nil;
     TISInputSourceRef inputSource = TISCopyCurrentKeyboardLayoutInputSource();
-    if (inputSource) {
-        CFDataRef layoutDataRef = TISGetInputSourceProperty(inputSource, kTISPropertyUnicodeKeyLayoutData);
-        if (layoutDataRef) {
-            UCKeyboardLayout *layoutData = (UCKeyboardLayout *)CFDataGetBytePtr(layoutDataRef);
+    if ( inputSource )
+        {
+        CFDataRef layoutDataRef = TISGetInputSourceProperty( inputSource, kTISPropertyUnicodeKeyLayoutData );
+
+        if ( layoutDataRef )
+            {
+            UCKeyboardLayout* layoutData = ( UCKeyboardLayout* )CFDataGetBytePtr( layoutDataRef );
             UniCharCount length = 0;
-            UniChar  chars[256] = { 0 };
+            UniChar chars[ 256 ] = { 0 };
             UInt32 deadKeyState = 0;
-            error = UCKeyTranslate(layoutData, self.keyCode, kUCKeyActionDisplay, 0, // No modifiers
-                                   LMGetKbdType(), kUCKeyTranslateNoDeadKeysMask, &deadKeyState,
-                                   sizeof(chars) / sizeof(UniChar), &length, chars);
-            keystroke = ((error == noErr) && length ? [NSString stringWithCharacters:chars length:length] : @"");
+            error = UCKeyTranslate( layoutData
+                                  , self.keyCode
+                                  , kUCKeyActionDisplay
+                                  , 0 /* No modifiers */
+                                  ,  LMGetKbdType()
+                                  , kUCKeyTranslateNoDeadKeysMask
+                                  , &deadKeyState
+                                  , sizeof( chars ) / sizeof( UniChar )
+                                  , &length
+                                  , chars
+                                  );
+
+            keystroke = ( ( error == noErr ) && length ? [ NSString stringWithCharacters: chars length: length ] : @"" );
+            }
+
+        CFRelease( inputSource );
         }
-        CFRelease(inputSource);
-    }
     
     // Validate keystroke
-    if (keystroke.length) {
-        static NSMutableCharacterSet *validChars = nil;
-        if (validChars == nil) {
-            validChars = [[NSMutableCharacterSet alloc] init];
-            [validChars formUnionWithCharacterSet:[NSCharacterSet alphanumericCharacterSet]];
-            [validChars formUnionWithCharacterSet:[NSCharacterSet punctuationCharacterSet]];
-            [validChars formUnionWithCharacterSet:[NSCharacterSet symbolCharacterSet]];
-        }
-        for (NSUInteger i = 0, length = keystroke.length; i < length; i++) {
-            if (![validChars characterIsMember:[keystroke characterAtIndex:i]]) {
+    if ( keystroke.length )
+        {
+        NSMutableCharacterSet static* validChars = nil;
+
+        if ( validChars == nil )
+            {
+            validChars = [ [ NSMutableCharacterSet alloc ] init ];
+            [validChars formUnionWithCharacterSet: [ NSCharacterSet alphanumericCharacterSet ] ];
+            [validChars formUnionWithCharacterSet: [ NSCharacterSet punctuationCharacterSet ] ];
+            [validChars formUnionWithCharacterSet: [ NSCharacterSet symbolCharacterSet ] ];
+            }
+
+        for ( NSUInteger i = 0, length = keystroke.length; i < length; i++ )
+            {
+            if ( ![ validChars characterIsMember: [ keystroke characterAtIndex: i ] ] )
+                {
                 keystroke = @"";
                 break;
+                }
             }
         }
-    }
     
     // Finally, we've got a shortcut!
     return keystroke.uppercaseString;
-}
+    }
 
-- (NSString *)modifierFlagsString
-{
-    unichar chars[4];
+- ( NSString* ) modifierFlagsString
+    {
+    unichar chars[ 4 ] = { 0 };
     NSUInteger count = 0;
+
     // These are in the same order as the menu manager shows them
-    if (self.modifierFlags & NSControlKeyMask) chars[count++] = kControlUnicode;
-    if (self.modifierFlags & NSAlternateKeyMask) chars[count++] = kOptionUnicode;
-    if (self.modifierFlags & NSShiftKeyMask) chars[count++] = kShiftUnicode;
-    if (self.modifierFlags & NSCommandKeyMask) chars[count++] = kCommandUnicode;
-    return (count ? [NSString stringWithCharacters:chars length:count] : @"");
-}
+    if ( self.modifierFlags & NSControlKeyMask )    chars[ count++ ] = kControlUnicode;
+    if ( self.modifierFlags & NSAlternateKeyMask )  chars[ count++ ] = kOptionUnicode;
+    if ( self.modifierFlags & NSShiftKeyMask )      chars[ count++ ] = kShiftUnicode;
+    if ( self.modifierFlags & NSCommandKeyMask )    chars[ count++ ] = kCommandUnicode;
+
+    return ( count ? [ NSString stringWithCharacters: chars length: count ] : @"" );
+    }
 
 #pragma mark Validation Logic
-- (BOOL)shouldBypass
-{
-    NSString *codeString = self.keyCodeString;
-    return (self.modifierFlags == NSCommandKeyMask) && ([codeString isEqualToString:@"W"] || [codeString isEqualToString:@"Q"]);
-}
+- ( BOOL ) shouldBypass
+    {
+    NSString* codeString = self.keyCodeString;
+    return ( self.modifierFlags == NSCommandKeyMask )
+                && ( [ codeString isEqualToString: @"W" ] || [ codeString isEqualToString: @"Q" ] );
+    }
 
 BOOL MASShortcutAllowsAnyHotkeyWithOptionModifier = NO;
++ ( void ) setAllowsAnyHotkeyWithOptionModifier: ( BOOL )_Allow
+    {
+    MASShortcutAllowsAnyHotkeyWithOptionModifier = _Allow;
+    }
 
-+ (void)setAllowsAnyHotkeyWithOptionModifier:(BOOL)allow
-{
-    MASShortcutAllowsAnyHotkeyWithOptionModifier = allow;
-}
-
-+ (BOOL)allowsAnyHotkeyWithOptionModifier
-{
++ ( BOOL ) allowsAnyHotkeyWithOptionModifier
+    {
     return MASShortcutAllowsAnyHotkeyWithOptionModifier;
-}
+    }
 
-- (BOOL)isValid
-{
+- ( BOOL ) isValid
+    {
     // Allow any function key with any combination of modifiers
-    BOOL includesFunctionKey = ((_keyCode == kVK_F1) || (_keyCode == kVK_F2) || (_keyCode == kVK_F3) || (_keyCode == kVK_F4) ||
-                                (_keyCode == kVK_F5) || (_keyCode == kVK_F6) || (_keyCode == kVK_F7) || (_keyCode == kVK_F8) ||
-                                (_keyCode == kVK_F9) || (_keyCode == kVK_F10) || (_keyCode == kVK_F11) || (_keyCode == kVK_F12) ||
-                                (_keyCode == kVK_F13) || (_keyCode == kVK_F14) || (_keyCode == kVK_F15) || (_keyCode == kVK_F16) ||
-                                (_keyCode == kVK_F17) || (_keyCode == kVK_F18) || (_keyCode == kVK_F19) || (_keyCode == kVK_F20));
-    if (includesFunctionKey) return YES;
+    BOOL includesFunctionKey = ( ( _keyCode == kVK_F1) || ( _keyCode == kVK_F2 ) || ( _keyCode == kVK_F3 ) || ( _keyCode == kVK_F4 )
+                                    || ( _keyCode == kVK_F5 ) || ( _keyCode == kVK_F6 ) || ( _keyCode == kVK_F7 ) || ( _keyCode == kVK_F8 )
+                                    || ( _keyCode == kVK_F9 ) || ( _keyCode == kVK_F10 ) || ( _keyCode == kVK_F11 ) || ( _keyCode == kVK_F12 )
+                                    || ( _keyCode == kVK_F13 ) || ( _keyCode == kVK_F14 ) || ( _keyCode == kVK_F15 ) || ( _keyCode == kVK_F16 )
+                                    || ( _keyCode == kVK_F17 ) || ( _keyCode == kVK_F18 ) || ( _keyCode == kVK_F19 ) || ( _keyCode == kVK_F20 ) );
+    if ( includesFunctionKey )
+        return YES;
 
     // Do not allow any other key without modifiers
-    BOOL hasModifierFlags = (_modifierFlags > 0);
-    if (!hasModifierFlags) return NO;
+    BOOL hasModifierFlags = ( _modifierFlags > 0 );
+    if ( !hasModifierFlags )
+        return NO;
 
     // Allow any hotkey containing Control or Command modifier
     BOOL includesCommand = ((_modifierFlags & NSCommandKeyMask) > 0);
@@ -302,7 +326,7 @@ BOOL MASShortcutAllowsAnyHotkeyWithOptionModifier = NO;
 
     // The hotkey does not have any modifiers or violates system bindings
     return NO;
-}
+    }
 
 - (BOOL)isKeyEquivalent:(NSString *)keyEquivalent flags:(NSUInteger)flags takenInMenu:(NSMenu *)menu error:(NSError **)outError
 {

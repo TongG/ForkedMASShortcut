@@ -389,7 +389,7 @@ BOOL MASShortcutAllowsAnyHotkeyWithOptionModifier = NO;
             if ( ( [ ( __bridge NSNumber* )keyVirtualCode unsignedIntegerValue ] == self.keyCode )
                     && ( [ ( __bridge NSNumber* )keyModifiers unsignedIntegerValue ] == self.carbonFlags ) )
                 {
-                if (_OutError)
+                if ( _OutError )
                     {
                     NSString *description = NSLocalizedString( @"This combination cannot be used used because it is already used by a system-wide "
                                                                @"keyboard shortcut.\nIf you really want to use this key combination, most shortcuts "

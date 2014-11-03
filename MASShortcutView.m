@@ -1,21 +1,19 @@
 #import "MASShortcutView.h"
 #import "MASShortcut.h"
 
-#define HINT_BUTTON_WIDTH 23.0
-#define BUTTON_FONT_SIZE 11.0
-#define SEGMENT_CHROME_WIDTH 6.0
+#define HINT_BUTTON_WIDTH       23.0f
+#define BUTTON_FONT_SIZE        11.0f
+#define SEGMENT_CHROME_WIDTH    6.0f
 
-#pragma mark -
-
+#pragma mark MASShortcutView + ()
 @interface MASShortcutView () // Private accessors
 
-@property (nonatomic, getter = isHinting) BOOL hinting;
-@property (nonatomic, copy) NSString *shortcutPlaceholder;
+@property ( nonatomic, getter = isHinting ) BOOL hinting;
+@property ( nonatomic, copy ) NSString* shortcutPlaceholder;
 
-@end
+@end // MASShortcutView + ()
 
-#pragma mark -
-
+#pragma mark MASShortcutView
 @implementation MASShortcutView
 
 @synthesize enabled = _enabled;
@@ -26,67 +24,78 @@
 @synthesize recording = _recording;
 @synthesize appearance=_appearance;
 
-#pragma mark -
-
-- (id)initWithFrame:(NSRect)frameRect
-{
-    self = [super initWithFrame:frameRect];
-    if (self) {
-        _shortcutCell = [[NSButtonCell alloc] init];
+#pragma mark Initializers & Deallocator
+- ( id ) initWithFrame: ( NSRect )_FrameRect
+    {
+    if (self = [super initWithFrame:_FrameRect] )
+        {
+        _shortcutCell = [ [ NSButtonCell alloc ] init ];
         _shortcutCell.buttonType = NSPushOnPushOffButton;
-        _shortcutCell.font = [[NSFontManager sharedFontManager] convertFont:_shortcutCell.font toSize:BUTTON_FONT_SIZE];
+        _shortcutCell.font = [ [ NSFontManager sharedFontManager ] convertFont: [ _shortcutCell font ]
+                                                                        toSize: BUTTON_FONT_SIZE ];
         _enabled = YES;
-        [self resetShortcutCellStyle];
-    }
+
+        [ self resetShortcutCellStyle ];
+        }
+
     return self;
-}
+    }
 
-- (void)dealloc
-{
-    [_shortcutCell release]; _shortcutCell = nil;
-    [self activateEventMonitoring:NO];
-    [self activateResignObserver:NO];
-    [super dealloc];
-}
+- ( void ) dealloc
+    {
+    [ _shortcutCell release ];
+     _shortcutCell = nil;
 
-#pragma mark - Public accessors
+    [ self activateEventMonitoring: NO ];
+    [ self activateResignObserver: NO ];
 
-- (void)setEnabled:(BOOL)flag
-{
-    if (_enabled != flag) {
-        _enabled = flag;
-        [self updateTrackingAreas];
+    [ super dealloc ];
+    }
+
+#pragma mark Public accessors
+- ( void ) setEnabled: ( BOOL )_YesOrNo
+    {
+    if (_enabled != _YesOrNo)
+        {
+        _enabled = _YesOrNo;
+        [ self updateTrackingAreas ];
+
         self.recording = NO;
-        [self setNeedsDisplay:YES];
+        [ self setNeedsDisplay: YES ];
+        }
     }
-}
 
-- (void)setAppearance:(MASShortcutViewAppearance)appearance
-{
-    if (_appearance != appearance) {
-        _appearance = appearance;
-        [self resetShortcutCellStyle];
-        [self setNeedsDisplay:YES];
+- ( void ) setAppearance: ( MASShortcutViewAppearance )_Appearance
+    {
+    if ( _appearance != _Appearance )
+        {
+        _appearance = _Appearance;
+
+        [ self resetShortcutCellStyle ];
+        [ self setNeedsDisplay: YES ];
+        }
     }
-}
 
-- (void)resetShortcutCellStyle
-{
-    switch (_appearance) {
-        case MASShortcutViewAppearanceDefault: {
+- ( void ) resetShortcutCellStyle
+    {
+    switch (_appearance)
+        {
+        case MASShortcutViewAppearanceDefault:
+            {
             _shortcutCell.bezelStyle = NSRoundRectBezelStyle;
-            break;
-        }
-        case MASShortcutViewAppearanceTexturedRect: {
+            } break;
+
+        case MASShortcutViewAppearanceTexturedRect:
+            {
             _shortcutCell.bezelStyle = NSTexturedRoundedBezelStyle;
-            break;
-        }
-        case MASShortcutViewAppearanceRounded: {
+            } break;
+
+        case MASShortcutViewAppearanceRounded:
+            {
             _shortcutCell.bezelStyle = NSRoundedBezelStyle;
-            break;
+            } break;
         }
     }
-}
 
 - (void)setRecording:(BOOL)flag
 {
@@ -133,44 +142,57 @@
     [self setNeedsDisplay:YES];
 }
 
-#pragma mark - Drawing
+#pragma mark Drawing
 
 - (BOOL)isFlipped
 {
     return YES;
 }
 
-- (void)drawInRect:(NSRect)frame withTitle:(NSString *)title alignment:(NSTextAlignment)alignment state:(NSInteger)state
-{
-    _shortcutCell.title = title;
-    _shortcutCell.alignment = alignment;
-    _shortcutCell.state = state;
+- ( void ) drawInRect: ( NSRect )_Frame
+            withTitle: ( NSString* )_Title
+            alignment: ( NSTextAlignment )_Alignment
+                state: ( NSInteger )_State
+    {
+    _shortcutCell.title = _Title;
+    _shortcutCell.alignment = _Alignment;
+    _shortcutCell.state = _State;
     _shortcutCell.enabled = self.enabled;
 
-    switch (_appearance) {
-        case MASShortcutViewAppearanceDefault: {
-            [_shortcutCell drawWithFrame:frame inView:self];
-            break;
-        }
-        case MASShortcutViewAppearanceTexturedRect: {
-            [_shortcutCell drawWithFrame:NSRectFromCGRect(CGRectOffset(NSRectToCGRect(frame), 0.0, 1.0)) inView:self];
-            break;
-        }
-        case MASShortcutViewAppearanceRounded: {
-            [_shortcutCell drawWithFrame:NSRectFromCGRect(CGRectOffset(NSRectToCGRect(frame), 0.0, 1.0)) inView:self];
-            break;
+    switch ( _appearance )
+        {
+        case MASShortcutViewAppearanceDefault:
+            {
+            [ _shortcutCell drawWithFrame: _Frame
+                                   inView: self ];
+            } break;
+
+        case MASShortcutViewAppearanceTexturedRect:
+            {
+            [_shortcutCell drawWithFrame: NSOffsetRect( _Frame, 0.0, 1.0 )
+                                  inView: self ];
+            } break;
+
+        case MASShortcutViewAppearanceRounded:
+            {
+            [_shortcutCell drawWithFrame: NSOffsetRect( _Frame, 0.0, 1.0 )
+                                  inView: self ];
+            } break;
         }
     }
-}
 
-- (void)drawRect:(NSRect)dirtyRect
-{
-    if (self.shortcutValue) {
-        [self drawInRect:self.bounds withTitle:MASShortcutChar(self.recording ? kMASShortcutGlyphEscape : kMASShortcutGlyphDeleteLeft)
-               alignment:NSRightTextAlignment state:NSOffState];
+- ( void ) drawRect: ( NSRect )_DirtyRect
+    {
+    if ( self.shortcutValue )
+        {
+        [ self drawInRect: self.bounds
+                withTitle: MASShortcutChar( self.recording ? kMASShortcutGlyphEscape : kMASShortcutGlyphDeleteLeft )
+                alignment: NSRightTextAlignment
+                    state: NSOffState ];
         
         CGRect shortcutRect;
-        [self getShortcutRect:&shortcutRect hintRect:NULL];
+        [ self getShortcutRect: &shortcutRect hintRect: NULL];
+
         NSString *title = (self.recording
                            ? (_hinting
                               ? NSLocalizedString(@"Use Old Shortuct", @"Cancel action button for non-empty shortcut in recording state")
@@ -179,10 +201,11 @@
                                  : NSLocalizedString(@"Type New Shortcut", @"Non-empty shortcut button in recording state")))
                            : _shortcutValue ? _shortcutValue.description : @"");
         [self drawInRect:NSRectFromCGRect(shortcutRect) withTitle:title alignment:NSCenterTextAlignment state:self.isRecording ? NSOnState : NSOffState];
-    }
-    else {
-        if (self.recording)
+        }
+    else
         {
+        if ( self.recording )
+            {
             [self drawInRect:self.bounds withTitle:MASShortcutChar(kMASShortcutGlyphEscape) alignment:NSRightTextAlignment state:NSOffState];
             
             CGRect shortcutRect;
@@ -193,16 +216,18 @@
                                   ? self.shortcutPlaceholder
                                   : NSLocalizedString(@"Type Shortcut", @"Empty shortcut button in recording state")));
             [self drawInRect:NSRectFromCGRect(shortcutRect) withTitle:title alignment:NSCenterTextAlignment state:NSOnState];
-        }
+            }
         else
-        {
-            [self drawInRect:self.bounds withTitle:NSLocalizedString(@"Record Shortcut", @"Empty shortcut button in normal state")
-                   alignment:NSCenterTextAlignment state:NSOffState];
+            {
+            [ self drawInRect: self.bounds
+                    withTitle: NSLocalizedString( @"Record Shortcut", @"Empty shortcut button in normal state" )
+                    alignment: NSCenterTextAlignment
+                        state: NSOffState ];
+            }
         }
     }
-}
 
-#pragma mark - Mouse handling
+#pragma mark Mouse handling
 
 - (void)getShortcutRect:(CGRect *)shortcutRectRef hintRect:(CGRect *)hintRectRef
 {
@@ -266,27 +291,28 @@
     }
 }
 
-#pragma mark - Handling mouse over
-
-- (void)updateTrackingAreas
-{
-    [super updateTrackingAreas];
+#pragma mark Handling mouse over
+- ( void ) updateTrackingAreas
+    {
+    [ super updateTrackingAreas ];
     
-    if (_hintArea) {
-        [self removeTrackingArea:_hintArea];
-        [_hintArea release];
+    if ( _hintArea )
+        {
+        [ self removeTrackingArea: _hintArea ];
+        [ _hintArea release ];
         _hintArea = nil;
-    }
+        }
     
     // Forbid hinting if view is disabled
-    if (!self.enabled) return;
+    if ( !self.enabled )
+        return;
     
     CGRect hintRect;
-    [self getShortcutRect:NULL hintRect:&hintRect];
+    [ self getShortcutRect: NULL hintRect: &hintRect ];
     NSTrackingAreaOptions options = (NSTrackingMouseEnteredAndExited | NSTrackingActiveAlways | NSTrackingAssumeInside);
     _hintArea = [[NSTrackingArea alloc] initWithRect:NSRectFromCGRect(hintRect) options:options owner:self userInfo:nil];
     [self addTrackingArea:_hintArea];
-}
+    }
 
 - (void)setHinting:(BOOL)flag
 {
@@ -337,7 +363,7 @@ void *kUserDataHint = &kUserDataHint;
     return nil;
 }
 
-#pragma mark - Event monitoring
+#pragma mark Event monitoring
 
 - (void)activateEventMonitoring:(BOOL)shouldActivate
 {

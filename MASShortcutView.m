@@ -402,7 +402,6 @@ void* kUserDataHint = &kUserDataHint;
 }
 
 #pragma mark Event monitoring
-
 - ( void ) activateEventMonitoring: ( BOOL )_ShouldActivate
     {
     BOOL static isActive = NO;
@@ -417,6 +416,7 @@ void* kUserDataHint = &kUserDataHint;
         {
         __block MASShortcutView* weakSelf = self;
         NSEventMask eventMask = ( NSKeyDownMask | NSFlagsChangedMask );
+
         eventMonitor = [ NSEvent addLocalMonitorForEventsMatchingMask: eventMask
                                                               handler:
             ^( NSEvent* event )
@@ -469,16 +469,12 @@ void* kUserDataHint = &kUserDataHint;
                                 }
                             }
                         else
-                            {
                             // Key press with or without SHIFT is not valid input
                             NSBeep();
-                            }
                         }
                     else
-                        {
                         // User is playing with modifier keys
                         weakSelf.shortcutPlaceholder = shortcut.modifierFlagsString;
-                        }
 
                     event = nil;
                     }

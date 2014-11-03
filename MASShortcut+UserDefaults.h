@@ -1,8 +1,11 @@
 #import "MASShortcut.h"
 
-@interface MASShortcut (UserDefaults)
+#pragma mark MASShortcut + MASShortcutUserDefaults
+@interface MASShortcut ( MASShortcutUserDefaults )
 
-+ (void)registerGlobalShortcutWithUserDefaultsKey:(NSString *)userDefaultsKey handler:(void (^)())handler;
-+ (void)unregisterGlobalShortcutWithUserDefaultsKey:(NSString *)userDefaultsKey;
++ ( void ) registerGlobalShortcutWithUserDefaultsKey: ( NSString* )_UserDefaultsKey
+                                             handler: ( void (^)() )_Handler;
 
-@end
++ ( void ) unregisterGlobalShortcutWithUserDefaultsKey: ( NSString* )_UserDefaultsKey;
+
+@end // MASShortcut + MASShortcutUserDefaults

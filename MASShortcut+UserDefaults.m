@@ -1,94 +1,106 @@
 #import "MASShortcut+UserDefaults.h"
 #import "MASShortcut+Monitoring.h"
 
-@interface MASShortcutUserDefaultsHotKey : NSObject {
-    
-    NSString *_userDefaultsKey;
-    void (^_handler)();
+#pragma mark MASShortcutUserDefaultsHotKey class interface
+@interface MASShortcutUserDefaultsHotKey : NSObject
+    {
+    NSString* _userDefaultsKey;
+    void ( ^_handler )();
     id _monitor;
+    }
 
-}
+@property ( nonatomic, readonly )   NSString* userDefaultsKey;
+@property ( nonatomic, copy )       void ( ^handler )();
+@property ( nonatomic, retain )     id monitor;
 
-@property (nonatomic, readonly) NSString *userDefaultsKey;
-@property (nonatomic, copy) void (^handler)();
-@property (nonatomic, retain) id monitor;
+- ( id ) initWithUserDefaultsKey: ( NSString* )_UserDefaultsKey
+                         handler: ( void (^)() )_Handler;
 
-- (id)initWithUserDefaultsKey:(NSString *)userDefaultsKey handler:(void (^)())handler;
+@end // MASShortcutUserDefaultsHotKey class interface
 
-@end
+#pragma mark MASShortcut + MASShortcutUserDefaults
+@implementation MASShortcut ( MASShortcutUserDefaults )
 
-#pragma mark -
++ ( NSMutableDictionary* ) registeredUserDefaultsHotKeys
+    {
+    NSMutableDictionary static* shared = nil;
 
-@implementation MASShortcut (UserDefaults)
+    dispatch_once_t static onceToken;
+    dispatch_once( &onceToken
+        , ^{ shared = [ [ NSMutableDictionary dictionary ] retain ]; } );
 
-+ (NSMutableDictionary *)registeredUserDefaultsHotKeys
-{
-    static NSMutableDictionary *shared = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        shared = [[NSMutableDictionary dictionary] retain];
-    });
     return shared;
-}
+    }
 
-+ (void)registerGlobalShortcutWithUserDefaultsKey:(NSString *)userDefaultsKey handler:(void (^)())handler;
-{
-    MASShortcutUserDefaultsHotKey *hotKey = [[MASShortcutUserDefaultsHotKey alloc] initWithUserDefaultsKey:userDefaultsKey handler:handler];
-    [[self registeredUserDefaultsHotKeys] setObject:hotKey forKey:userDefaultsKey];
-}
++ ( void ) registerGlobalShortcutWithUserDefaultsKey: ( NSString* )_UserDefaultsKey
+                                             handler: ( void (^)() )_Handler
+    {
+    MASShortcutUserDefaultsHotKey* hotKey = [ [ MASShortcutUserDefaultsHotKey alloc ] initWithUserDefaultsKey: _UserDefaultsKey
+                                                                                                      handler: _Handler ];
+    [ self registeredUserDefaultsHotKeys ][ _UserDefaultsKey ] = hotKey;
+    }
 
-+ (void)unregisterGlobalShortcutWithUserDefaultsKey:(NSString *)userDefaultsKey
-{
-    NSMutableDictionary *registeredHotKeys = [self registeredUserDefaultsHotKeys];
-    [registeredHotKeys removeObjectForKey:userDefaultsKey];
-}
++ ( void ) unregisterGlobalShortcutWithUserDefaultsKey: ( NSString* )_UserDefaultsKey
+    {
+    NSMutableDictionary* registeredHotKeys = [ self registeredUserDefaultsHotKeys ];
+    [ registeredHotKeys removeObjectForKey: _UserDefaultsKey ];
+    }
 
-@end
+@end // MASShortcut + MASShortcutUserDefaults
 
-#pragma mark -
-
+#pragma mark MASShortcutUserDefaultsHotKey class implementation
 @implementation MASShortcutUserDefaultsHotKey
 
 @synthesize monitor = _monitor;
 @synthesize handler = _handler;
 @synthesize userDefaultsKey = _userDefaultsKey;
 
-#pragma mark -
+#pragma mark Initializers & Deallocator
+- ( id ) initWithUserDefaultsKey: ( NSString* )_UserDefaultsKey
+                         handler: ( void (^)() )_Handler
+    {
+    if ( self = [ super init ] )
+        {
+        _userDefaultsKey = [ _UserDefaultsKey copy ];
+        _handler = [ _Handler copy ];
 
-- (id)initWithUserDefaultsKey:(NSString *)userDefaultsKey handler:(void (^)())handler
-{
-    self = [super init];
-    if (self) {
-        _userDefaultsKey = userDefaultsKey.copy;
-        _handler = [handler copy];
-        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userDefaultsDidChange:)
-                                                     name:NSUserDefaultsDidChangeNotification object:[NSUserDefaults standardUserDefaults]];
-        [self installHotKeyFromUserDefaults];
-    }
+        [ [ NSNotificationCenter defaultCenter] addObserver: self
+                                                   selector: @selector( userDefaultsDidChange: )
+                                                       name: NSUserDefaultsDidChangeNotification
+                                                     object: [ NSUserDefaults standardUserDefaults ] ];
+        [ self installHotKeyFromUserDefaults ];
+        }
+
     return self;
-}
+    }
 
-- (void)dealloc
-{
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:NSUserDefaultsDidChangeNotification object:[NSUserDefaults standardUserDefaults]];
-    [MASShortcut removeGlobalHotkeyMonitor:self.monitor];
-    [super dealloc];
-}
+- ( void ) dealloc
+    {
+    [ [ NSNotificationCenter defaultCenter ] removeObserver: self
+                                                       name: NSUserDefaultsDidChangeNotification
+                                                     object: [ NSUserDefaults standardUserDefaults ] ];
+
+    [ MASShortcut removeGlobalHotkeyMonitor: self.monitor ];
+    [ super dealloc ];
+    }
 
 #pragma mark -
+- ( void ) userDefaultsDidChange: ( NSNotification* )_Notif
+    {
+    [ MASShortcut removeGlobalHotkeyMonitor: self.monitor ];
+    [ self installHotKeyFromUserDefaults ];
+    }
 
-- (void)userDefaultsDidChange:(NSNotification *)note
-{
-    [MASShortcut removeGlobalHotkeyMonitor:self.monitor];
-    [self installHotKeyFromUserDefaults];
-}
+- ( void ) installHotKeyFromUserDefaults
+    {
+    NSData* data = [ [ NSUserDefaults standardUserDefaults ] dataForKey: _userDefaultsKey ];
+    MASShortcut* shortcut = [ MASShortcut shortcutWithData: data ];
 
-- (void)installHotKeyFromUserDefaults
-{
-    NSData *data = [[NSUserDefaults standardUserDefaults] dataForKey:_userDefaultsKey];
-    MASShortcut *shortcut = [MASShortcut shortcutWithData:data];
-    if (shortcut == nil) return;
-    self.monitor = [MASShortcut addGlobalHotkeyMonitorWithShortcut:shortcut handler:self.handler];
-}
+    if ( !shortcut )
+        return;
 
-@end
+    self.monitor = [ MASShortcut addGlobalHotkeyMonitorWithShortcut: shortcut
+                                                            handler: self.handler ];
+    }
+
+@end // MASShortcutUserDefaultsHotKey class implementation

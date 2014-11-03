@@ -152,12 +152,12 @@
 - ( void ) drawInRect: ( NSRect )_Frame
             withTitle: ( NSString* )_Title
             alignment: ( NSTextAlignment )_Alignment
-                state: ( NSInteger )_State
+                state: ( NSCellStateValue )_State
     {
-    _shortcutCell.title = _Title;
-    _shortcutCell.alignment = _Alignment;
-    _shortcutCell.state = _State;
-    _shortcutCell.enabled = self.enabled;
+    [ _shortcutCell setTitle: _Title ];
+    [ _shortcutCell setAlignment: _Alignment ];
+    [ _shortcutCell setState: _State ];
+    [ _shortcutCell setEnabled: self.enabled ];
 
     switch ( _appearance )
         {
@@ -168,11 +168,6 @@
             } break;
 
         case MASShortcutViewAppearanceTexturedRect:
-            {
-            [_shortcutCell drawWithFrame: NSOffsetRect( _Frame, 0.0, 1.0 )
-                                  inView: self ];
-            } break;
-
         case MASShortcutViewAppearanceRounded:
             {
             [_shortcutCell drawWithFrame: NSOffsetRect( _Frame, 0.0, 1.0 )
@@ -185,6 +180,7 @@
     {
     if ( self.shortcutValue )
         {
+        NSLog( @"Fuck" );
         [ self drawInRect: self.bounds
                 withTitle: MASShortcutChar( self.recording ? kMASShortcutGlyphEscape : kMASShortcutGlyphDeleteLeft )
                 alignment: NSRightTextAlignment
@@ -193,29 +189,36 @@
         CGRect shortcutRect;
         [ self getShortcutRect: &shortcutRect hintRect: NULL];
 
-        NSString *title = (self.recording
-                           ? (_hinting
-                              ? NSLocalizedString(@"Use Old Shortuct", @"Cancel action button for non-empty shortcut in recording state")
-                              : (self.shortcutPlaceholder.length > 0
-                                 ? self.shortcutPlaceholder
-                                 : NSLocalizedString(@"Type New Shortcut", @"Non-empty shortcut button in recording state")))
-                           : _shortcutValue ? _shortcutValue.description : @"");
+        NSString* title = ( self.recording ? ( _hinting ? NSLocalizedString(@"Use Old Shortuct", @"Cancel action button for non-empty shortcut in recording state")
+                                                        : ( self.shortcutPlaceholder.length > 0 ? self.shortcutPlaceholder
+                                                                                                : NSLocalizedString(@"Type New Shortcut", @"Non-empty shortcut button in recording state" ) ) )
+                                           : _shortcutValue ? _shortcutValue.description : @"");
+
         [self drawInRect:NSRectFromCGRect(shortcutRect) withTitle:title alignment:NSCenterTextAlignment state:self.isRecording ? NSOnState : NSOffState];
         }
     else
         {
         if ( self.recording )
             {
-            [self drawInRect:self.bounds withTitle:MASShortcutChar(kMASShortcutGlyphEscape) alignment:NSRightTextAlignment state:NSOffState];
-            
+            /* Draw the "⎋" from the rightmost of shortcut view
+             * the appearance is "push on" */
+            [ self drawInRect: self.bounds
+                    withTitle: MASShortcutChar( kMASShortcutGlyphEscape )
+                    alignment: NSRightTextAlignment
+                        state: NSOffState ];
+
             CGRect shortcutRect;
-            [self getShortcutRect:&shortcutRect hintRect:NULL];
-            NSString *title = (_hinting
-                               ? NSLocalizedString(@"Cancel", @"Cancel action button in recording state")
-                               : (self.shortcutPlaceholder.length > 0
-                                  ? self.shortcutPlaceholder
-                                  : NSLocalizedString(@"Type Shortcut", @"Empty shortcut button in recording state")));
-            [self drawInRect:NSRectFromCGRect(shortcutRect) withTitle:title alignment:NSCenterTextAlignment state:NSOnState];
+            [ self getShortcutRect: &shortcutRect hintRect: NULL ];
+
+            NSString* title = ( _hinting ? NSLocalizedString( @"Cancel", @"Cancel action button in recording state" )
+                                         : ( self.shortcutPlaceholder.length > 0 ? self.shortcutPlaceholder
+                                                                                 : NSLocalizedString( @"Type Shortcut", @"Empty shortcut button in recording state" ) ) );
+            /* Draw "Type Shortcut" of shortcut placeholder from the leftmost of shortcut view
+             * the appearance is "push off" */
+            [ self drawInRect: NSRectFromCGRect( shortcutRect )
+                    withTitle: title
+                    alignment: NSCenterTextAlignment
+                        state: NSOnState ];
             }
         else
             {
@@ -228,20 +231,37 @@
     }
 
 #pragma mark Mouse handling
-
-- (void)getShortcutRect:(CGRect *)shortcutRectRef hintRect:(CGRect *)hintRectRef
-{
-    CGRect shortcutRect, hintRect;
+/* Devide self.bounds into two compoment rect: 
+ * 1. shortcut rect
+ * 2. hint rect */
+- ( void ) getShortcutRect: ( CGRect* )_ShortcutRectRef
+                  hintRect: ( CGRect* )_HintRectRef
+    {
+    CGRect  shortcutRect;
+    CGRect  hintRect;
     CGFloat hintButtonWidth = HINT_BUTTON_WIDTH;
-    switch (self.appearance) {
-        case MASShortcutViewAppearanceTexturedRect: hintButtonWidth += 2.0; break;
-        case MASShortcutViewAppearanceRounded: hintButtonWidth += 3.0; break;
-        default: break;
+
+    switch ( self.appearance )
+        {
+    case MASShortcutViewAppearanceTexturedRect: hintButtonWidth += 2.0; break;
+    case MASShortcutViewAppearanceRounded:      hintButtonWidth += 3.0; break;
+
+    default: break;
+        }
+
+    CGRectDivide( NSRectToCGRect( self.bounds )
+                , &hintRect
+                , &shortcutRect
+                , hintButtonWidth
+                , CGRectMaxXEdge
+                );
+
+    if ( _ShortcutRectRef )
+        *_ShortcutRectRef = shortcutRect;
+
+    if ( _HintRectRef )
+        *_HintRectRef = hintRect;
     }
-    CGRectDivide(NSRectToCGRect(self.bounds), &hintRect, &shortcutRect, hintButtonWidth, CGRectMaxXEdge);
-    if (shortcutRectRef)  *shortcutRectRef = shortcutRect;
-    if (hintRectRef) *hintRectRef = hintRect;
-}
 
 - (BOOL)locationInShortcutRect:(CGPoint)location
 {

@@ -178,27 +178,30 @@
 
 - ( void ) drawRect: ( NSRect )_DirtyRect
     {
-    if ( self.shortcutValue )
+    if ( self.shortcutValue /* User has already recorded at least one shortcut */ )
         {
-        NSLog( @"Fuck" );
         [ self drawInRect: self.bounds
                 withTitle: MASShortcutChar( self.recording ? kMASShortcutGlyphEscape : kMASShortcutGlyphDeleteLeft )
                 alignment: NSRightTextAlignment
                     state: NSOffState ];
         
         CGRect shortcutRect;
-        [ self getShortcutRect: &shortcutRect hintRect: NULL];
+        [ self getShortcutRect: &shortcutRect hintRect: NULL ];
 
-        NSString* title = ( self.recording ? ( _hinting ? NSLocalizedString(@"Use Old Shortuct", @"Cancel action button for non-empty shortcut in recording state")
-                                                        : ( self.shortcutPlaceholder.length > 0 ? self.shortcutPlaceholder
-                                                                                                : NSLocalizedString(@"Type New Shortcut", @"Non-empty shortcut button in recording state" ) ) )
-                                           : _shortcutValue ? _shortcutValue.description : @"");
+        NSString* hintText = _hinting ? NSLocalizedString( @"Use Old Shortuct", @"Cancel action button for non-empty shortcut in recording state" )
+                                      : ( self.shortcutPlaceholder.length > 0 ? self.shortcutPlaceholder
+                                                                              : NSLocalizedString( @"Type New Shortcut", @"Non-empty shortcut button in recording state" ) );
+        NSString* title = ( self.recording ? hintText
+                                           : ( _shortcutValue ? _shortcutValue.description : @"" ) );
 
-        [self drawInRect:NSRectFromCGRect(shortcutRect) withTitle:title alignment:NSCenterTextAlignment state:self.isRecording ? NSOnState : NSOffState];
+        [ self drawInRect: NSRectFromCGRect( shortcutRect )
+                withTitle: title
+                alignment: NSCenterTextAlignment
+                    state: self.isRecording ? NSOnState : NSOffState ];
         }
     else
         {
-        if ( self.recording )
+        if ( self.recording /* The user is going to record a shortcut, but he has already not recorded any shortcut */ )
             {
             /* Draw the "⎋" from the rightmost of shortcut view
              * the appearance is "push on" */
@@ -231,7 +234,7 @@
     }
 
 #pragma mark Mouse handling
-/* Devide self.bounds into two compoment rect: 
+/* Divide self.bounds into two component rect:
  * 1. shortcut rect
  * 2. hint rect */
 - ( void ) getShortcutRect: ( CGRect* )_ShortcutRectRef
@@ -263,53 +266,55 @@
         *_HintRectRef = hintRect;
     }
 
-- (BOOL)locationInShortcutRect:(CGPoint)location
-{
+- ( BOOL ) locationInShortcutRect: ( CGPoint )_Location
+    {
     CGRect shortcutRect;
-    [self getShortcutRect:&shortcutRect hintRect:NULL];
-    return CGRectContainsPoint(shortcutRect, NSPointToCGPoint([self convertPoint:NSPointFromCGPoint(location) fromView:nil]));
-}
+    [ self getShortcutRect: &shortcutRect hintRect: NULL ];
 
-- (BOOL)locationInHintRect:(CGPoint)location
-{
+    return CGRectContainsPoint( shortcutRect, NSPointToCGPoint( [ self convertPoint: NSPointFromCGPoint( _Location ) fromView: nil ] ) );
+    }
+
+- ( BOOL ) locationInHintRect: ( CGPoint )_Location
+    {
     CGRect hintRect;
-    [self getShortcutRect:NULL hintRect:&hintRect];
-    return CGRectContainsPoint(hintRect, NSPointToCGPoint([self convertPoint:NSPointFromCGPoint(location) fromView:nil]));
-}
+    [ self getShortcutRect: NULL hintRect: &hintRect ];
 
-- (void)mouseDown:(NSEvent *)event
-{
-    if (self.enabled) {
-        if (self.shortcutValue) {
-            if (self.recording) {
-                if ([self locationInHintRect:NSPointToCGPoint(event.locationInWindow)]) {
+    return CGRectContainsPoint( hintRect, NSPointToCGPoint( [ self convertPoint: NSPointFromCGPoint( _Location ) fromView: nil ] ) );
+    }
+
+- ( void ) mouseDown: ( NSEvent* )_Event
+    {
+    if ( self.enabled )
+        {
+        if ( self.shortcutValue )
+            {
+            if ( self.recording )
+                {
+                if ( [ self locationInHintRect: NSPointToCGPoint( _Event.locationInWindow ) ] )
                     self.recording = NO;
                 }
-            }
-            else {
-                if ([self locationInShortcutRect:NSPointToCGPoint(event.locationInWindow)]) {
+            else
+                {
+                if ( [ self locationInShortcutRect: NSPointToCGPoint( _Event.locationInWindow ) ] )
                     self.recording = YES;
-                }
-                else {
+                else
                     self.shortcutValue = nil;
                 }
             }
-        }
-        else {
-            if (self.recording) {
-                if ([self locationInHintRect:NSPointToCGPoint(event.locationInWindow)]) {
+        else
+            {
+            if (self.recording)
+                {
+                if ( [ self locationInHintRect: NSPointToCGPoint( _Event.locationInWindow ) ] )
                     self.recording = NO;
                 }
-            }
-            else {
+            else
                 self.recording = YES;
             }
         }
+    else
+        [ super mouseDown: _Event ];
     }
-    else {
-        [super mouseDown:event];
-    }
-}
 
 #pragma mark Handling mouse over
 - ( void ) updateTrackingAreas

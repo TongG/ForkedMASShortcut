@@ -1,3 +1,47 @@
+///:
+/*****************************************************************************
+ **                                                                         **
+ **                               .======.                                  **
+ **                               | INRI |                                  **
+ **                               |      |                                  **
+ **                               |      |                                  **
+ **                      .========'      '========.                         **
+ **                      |   _      xxxx      _   |                         **
+ **                      |  /_;-.__ / _\  _.-;_\  |                         **
+ **                      |     `-._`'`_/'`.-'     |                         **
+ **                      '========.`\   /`========'                         **
+ **                               | |  / |                                  **
+ **                               |/-.(  |                                  **
+ **                               |\_._\ |                                  **
+ **                               | \ \`;|                                  **
+ **                               |  > |/|                                  **
+ **                               | / // |                                  **
+ **                               | |//  |                                  **
+ **                               | \(\  |                                  **
+ **                               |  ``  |                                  **
+ **                               |      |                                  **
+ **                               |      |                                  **
+ **                               |      |                                  **
+ **                               |      |                                  **
+ **                   \\    _  _\\| \//  |//_   _ \// _                     **
+ **                  ^ `^`^ ^`` `^ ^` ``^^`  `^^` `^ `^                     **
+ **                                                                         **
+ **                Created by Vadim Shpakovski Originally                   **
+ **           GitHub: https://github.com/shpakovski/MASShortcut             **
+ **                                                                         **
+ **                                                                         **
+ **                 Forked and Changed by Richard Heard                     **
+ **            GitHub: https://github.com/heardrwt/MASShortcut              **
+ **                                                                         **
+ **                                                                         **
+ **             Forked, Changed and Republished by Tong Guo                 **
+ **             GitHub: https://github.com/TongG/MASShortcut                **
+ **                                                                         **
+ **                       Copyright (c) 2014 Tong G.                        **
+ **                          ALL RIGHTS RESERVED.                           **
+ **                                                                         **
+ ****************************************************************************/
+
 @class MASShortcut;
 
 typedef enum
@@ -16,10 +60,15 @@ typedef enum
     NSTrackingArea* _hintArea;
     
     BOOL            _enabled;
+
+    /* YES when the mouse pointer enter the hint field
+     * and be NO when the mouse pointer exit there */
     BOOL            _hinting;
+
     MASShortcut*    _shortcutValue;
 
-    /* Just a placeholder, for example: while the key combination is "⌃⌘W",
+    /* Just a placeholder that display in the highlighted shortcut view
+     * for example: while the key combination is "⌃⌘W",
      * the shortcut placeholder is "⌃⌘" */
     NSString*       _shortcutPlaceholder;
 
@@ -38,3 +87,20 @@ typedef enum
 @property ( nonatomic, copy ) void ( ^shortcutValueChange )( MASShortcutView* sender );
 
 @end // MASShortcutView class
+
+//////////////////////////////////////////////////////////////////////////////
+
+/*****************************************************************************
+ **                                                                         **
+ **      _________                                      _______             **
+ **     |___   ___|                                   / ______ \            **
+ **         | |     _______   _______   _______      | /      |_|           **
+ **         | |    ||     || ||     || ||     ||     | |    _ __            **
+ **         | |    ||     || ||     || ||     ||     | |   |__  \           **
+ **         | |    ||     || ||     || ||     ||     | \_ _ __| |  _        **
+ **         |_|    ||_____|| ||     || ||_____||      \________/  |_|       **
+ **                                           ||                            **
+ **                                    ||_____||                            **
+ **                                                                         **
+ ****************************************************************************/
+///:

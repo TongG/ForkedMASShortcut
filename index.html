@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Masshortcut by TongG</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Masshortcut</h1>
+        <p>Modern framework for managing global keyboard shortcuts compatible with Mac App Store. More details:</p>
+
+        <p class="view"><a href="https://github.com/TongG/MASShortcut">View the Project on GitHub <small>TongG/MASShortcut</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/TongG/MASShortcut/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/TongG/MASShortcut/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/TongG/MASShortcut">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a name="intro" class="anchor" href="#intro"><span class="octicon octicon-link"></span></a>Intro</h1>
+
+<p>Some time ago Cocoa developers used a brilliant framework <a href="http://wafflesoftware.net/shortcut/">ShortcutRecorder</a> for managing keyboard shortcuts in application preferences. However, it became incompatible with a new plugin architecture of Xcode 4.</p>
+
+<p>The project MASShortcut introduces modern API and user interface for recording, storing and using global keyboard shortcuts. All code is compatible with Xcode 4.3, Mac OS X 10.7 and the sandboxed environment.</p>
+
+<h1>
+<a name="usage" class="anchor" href="#usage"><span class="octicon octicon-link"></span></a>Usage</h1>
+
+<p>I hope, it is really easy:</p>
+
+<div class="highlight highlight-objective-c"><pre><span class="c1">// Drop a custom view into XIB and set its class to MASShortcutView</span>
+<span class="k">@property</span> <span class="p">(</span> <span class="k">nonatomic</span><span class="p">,</span> <span class="k">weak</span> <span class="p">)</span> <span class="kt">IBOutlet</span> <span class="n">MASShortcutView</span><span class="o">*</span> <span class="n">shortcutView</span><span class="p">;</span>
+
+<span class="c1">// Think up a preference key to store a global shortcut between launches</span>
+<span class="bp">NSString</span><span class="o">*</span> <span class="k">const</span> <span class="n">kPreferenceGlobalShortcut</span> <span class="o">=</span> <span class="s">@"GlobalShortcut"</span><span class="p">;</span>
+
+<span class="c1">// Assign the preference key and the shortcut view will take care of persistence</span>
+<span class="nb">self</span><span class="p">.</span><span class="n">shortcutView</span><span class="p">.</span><span class="n">associatedUserDefaultsKey</span> <span class="o">=</span> <span class="n">kPreferenceGlobalShortcut</span><span class="p">;</span>
+
+<span class="c1">// Execute your block of code automatically when user triggers a shortcut from preferences</span>
+<span class="p">[</span> <span class="n">MASShortcut</span> <span class="nl">registerGlobalShortcutWithUserDefaultsKey</span><span class="p">:</span> <span class="n">kPreferenceGlobalShortcut</span> 
+                                                <span class="nl">handler</span><span class="p">:</span>
+    <span class="o">^</span><span class="p">{</span>
+     <span class="cm">/* Let me know if you find a better or more convenient API. */</span>
+    <span class="p">}</span> <span class="p">];</span>
+</pre></div>
+
+<p>To set an example, I made a  demo project: <a href="https://github.com/shpakovski/MASShortcutDemo">MASShortcutDemo</a>. Enjoy!</p>
+
+<h1>
+<a name="non-arc-version" class="anchor" href="#non-arc-version"><span class="octicon octicon-link"></span></a>Non-ARC Version</h1>
+
+<p>This repo does not use ARC.</p>
+
+<h1>
+<a name="copyright" class="anchor" href="#copyright"><span class="octicon octicon-link"></span></a>Copyright</h1>
+
+<p>MASShortcut is licensed under the BSD license.</p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/TongG">TongG</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>

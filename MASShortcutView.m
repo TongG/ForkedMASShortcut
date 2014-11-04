@@ -139,21 +139,22 @@
         self.shortcutValueChange( self );
     }
 
-- (void)setShortcutPlaceholder:(NSString *)shortcutPlaceholder
-{
-    if (_shortcutPlaceholder != shortcutPlaceholder){
-        [_shortcutPlaceholder release];
-        _shortcutPlaceholder = shortcutPlaceholder.copy;
+- ( void ) setShortcutPlaceholder: ( NSString* )_ShortcutPlaceholder
+    {
+    if ( _shortcutPlaceholder != _ShortcutPlaceholder )
+        {
+        [ _shortcutPlaceholder release ];
+        _shortcutPlaceholder = _ShortcutPlaceholder.copy;
+        }
+
+    [ self setNeedsDisplay: YES ];
     }
-    [self setNeedsDisplay:YES];
-}
 
 #pragma mark Drawing
-
-- (BOOL)isFlipped
-{
+- ( BOOL ) isFlipped
+    {
     return YES;
-}
+    }
 
 - ( void ) drawInRect: ( NSRect )_Frame
             withTitle: ( NSString* )_Title
@@ -340,28 +341,33 @@
     
     CGRect hintRect;
     [ self getShortcutRect: NULL hintRect: &hintRect ];
-    NSTrackingAreaOptions options = (NSTrackingMouseEnteredAndExited | NSTrackingActiveAlways | NSTrackingAssumeInside);
-    _hintArea = [[NSTrackingArea alloc] initWithRect:NSRectFromCGRect(hintRect) options:options owner:self userInfo:nil];
-    [self addTrackingArea:_hintArea];
+
+    NSTrackingAreaOptions options = ( NSTrackingMouseEnteredAndExited | NSTrackingActiveAlways | NSTrackingAssumeInside );
+    _hintArea = [ [ NSTrackingArea alloc ] initWithRect: NSRectFromCGRect( hintRect )
+                                                options: options
+                                                  owner: self
+                                               userInfo: nil ];
+    [ self addTrackingArea: _hintArea ];
     }
 
-- (void)setHinting:(BOOL)flag
-{
-    if (_hinting != flag) {
-        _hinting = flag;
-        [self setNeedsDisplay:YES];
+- ( void ) setHinting: ( BOOL )_Flag
+    {
+    if ( _hinting != _Flag )
+        {
+        _hinting = _Flag;
+        [ self setNeedsDisplay: YES ];
+        }
     }
-}
 
-- (void)mouseEntered:(NSEvent *)event
-{
+- ( void ) mouseEntered: ( NSEvent* )_Event
+    {
     self.hinting = YES;
-}
+    }
 
-- (void)mouseExited:(NSEvent *)event
-{
+- ( void ) mouseExited: ( NSEvent* )_Event
+    {
     self.hinting = NO;
-}
+    }
 
 void* kUserDataShortcut = &kUserDataShortcut;
 void* kUserDataHint = &kUserDataHint;
@@ -390,16 +396,19 @@ void* kUserDataHint = &kUserDataHint;
                                    userData: kUserDataHint ];
     }
 
-- (NSString *)view:(NSView *)view stringForToolTip:(NSToolTipTag)tag point:(NSPoint)point userData:(void *)data
-{
-    if (data == kUserDataShortcut) {
-        return NSLocalizedString(@"Click to record new shortcut", @"Tooltip for non-empty shortcut button");
-    }
-    else if (data == kUserDataHint) {
-        return NSLocalizedString(@"Delete shortcut", @"Tooltip for hint button near the non-empty shortcut");
-    }
+- ( NSString* ) view: ( NSView* )_View
+    stringForToolTip: ( NSToolTipTag )_Tag
+               point: ( NSPoint )_Point
+            userData: ( void* )_Data
+    {
+    if ( _Data == kUserDataShortcut )
+        return NSLocalizedString( @"Click to record new shortcut", @"Tooltip for non-empty shortcut button" );
+
+    else if ( _Data == kUserDataHint )
+        return NSLocalizedString( @"Delete shortcut", @"Tooltip for hint button near the non-empty shortcut" );
+
     return nil;
-}
+    }
 
 #pragma mark Event monitoring
 - ( void ) activateEventMonitoring: ( BOOL )_ShouldActivate
@@ -419,21 +428,22 @@ void* kUserDataHint = &kUserDataHint;
 
         eventMonitor = [ NSEvent addLocalMonitorForEventsMatchingMask: eventMask
                                                               handler:
-            ^( NSEvent* event )
+            ^( NSEvent* _Event )
                 {
-                MASShortcut* shortcut = [ MASShortcut shortcutWithEvent: event ];
+                MASShortcut* shortcut = [ MASShortcut shortcutWithEvent: _Event ];
+
                 if ( ( shortcut.keyCode == kVK_Delete ) || ( shortcut.keyCode == kVK_ForwardDelete ) )
                     {
                     // Delete shortcut
                     weakSelf.shortcutValue = nil;
                     weakSelf.recording = NO;
-                    event = nil;
+                    _Event = nil;
                     }
                 else if ( shortcut.keyCode == kVK_Escape )
                     {
                     // Cancel recording
                     weakSelf.recording = NO;
-                    event = nil;
+                    _Event = nil;
                     }
                 else if ( shortcut.shouldBypass )
                     {
@@ -476,34 +486,42 @@ void* kUserDataHint = &kUserDataHint;
                         // User is playing with modifier keys
                         weakSelf.shortcutPlaceholder = shortcut.modifierFlagsString;
 
-                    event = nil;
+                    _Event = nil;
                     }
 
-            return event;
+            return _Event;
             } ];
         }
     else
         [ NSEvent removeMonitor: eventMonitor ];
     }
 
-- (void)activateResignObserver:(BOOL)shouldActivate
-{
-    static BOOL isActive = NO;
-    if (isActive == shouldActivate) return;
-    isActive = shouldActivate;
+- ( void ) activateResignObserver: ( BOOL )_ShouldActivate
+    {
+    BOOL static isActive = NO;
+
+    if ( isActive == _ShouldActivate )
+        return;
+
+    isActive = _ShouldActivate;
     
-    static id observer = nil;
-    NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
-    if (shouldActivate) {
-        __block MASShortcutView *weakSelf = self;
-        observer = [notificationCenter addObserverForName:NSWindowDidResignKeyNotification object:self.window
-                                                queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification *notification) {
-                                                    weakSelf.recording = NO;
-                                                }];
+    id static observer = nil;
+    NSNotificationCenter* notificationCenter = [ NSNotificationCenter defaultCenter];
+
+    if ( _ShouldActivate )
+        {
+        __block MASShortcutView* weakSelf = self;
+        observer = [ notificationCenter addObserverForName: NSWindowDidResignKeyNotification
+                                                    object: self.window
+                                                     queue: [ NSOperationQueue mainQueue ]
+                                                usingBlock:
+            ^( NSNotification* notification )
+                {
+                weakSelf.recording = NO;
+                } ];
+        }
+    else
+        [ notificationCenter removeObserver: observer ];
     }
-    else {
-        [notificationCenter removeObserver:observer];
-    }
-}
 
 @end

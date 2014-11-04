@@ -123,6 +123,11 @@ enum { kMASShortcutGlyphEject = 0x23CF
 
 @end
 
+#pragma mark Error Recovery Attempting
+@interface MASShortcut ( MASShortcutErrorRecoveryAttempting )
+- ( BOOL ) attemptRecoveryFromError: ( NSError* )_Error optionIndex: ( NSUInteger )_RecoveryOptionIndex;
+@end // MASShortcut + MASShortcutErrorRecoveryAttempting
+
 //import the other headers so we can include the framework in the usual fashion.
 #import "MASShortcut+Monitoring.h"
 #import "MASShortcut+UserDefaults.h"

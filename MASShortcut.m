@@ -444,6 +444,8 @@ BOOL MASShortcutAllowsAnyHotkeyWithOptionModifier = NO;
 
                     NSDictionary* info = @{ NSLocalizedDescriptionKey : [ NSString stringWithFormat: errorDescription, self.description ]
                                           , NSLocalizedRecoverySuggestionErrorKey: recoverySuggestion
+                                          , NSLocalizedRecoveryOptionsErrorKey: @[ @"OK", @"Change in System Preferences" ]
+                                          , NSRecoveryAttempterErrorKey : self
                                           };
 
                     *_OutError = [ NSError errorWithDomain: NSCocoaErrorDomain code: 0 userInfo: info ];
@@ -467,6 +469,35 @@ BOOL MASShortcutAllowsAnyHotkeyWithOptionModifier = NO;
     }
 
 @end
+
+#pragma mark Error Recovery Attempting
+@implementation MASShortcut ( MASShortcutErrorRecoveryAttempting )
+
+- ( BOOL ) attemptRecoveryFromError: ( NSError* )_Error optionIndex: ( NSUInteger )_RecoveryOptionIndex
+    {
+    if ( _RecoveryOptionIndex == 1 /* The user selected "Change in System Preferences" option... */ )
+        {
+        NSURL* systemPreferencesURL = [ NSURL URLWithString: @"file:///Applications/System%20Preferences.app" ];
+
+        NSError* error = nil;
+        NSRunningApplication* runningApp =
+            [ [ NSWorkspace sharedWorkspace ] launchApplicationAtURL: systemPreferencesURL
+                                                             options: 0
+                                                       configuration: nil
+                                                               error: &error ];
+        if ( !runningApp && error )
+            {
+            NSLog( @"%@", error );
+            return NO;
+            }
+        else
+            return YES;
+        }
+
+    return NO;
+    }
+
+@end // MASShortcut + MASShortcutErrorRecoveryAttempting
 
 //////////////////////////////////////////////////////////////////////////////
 

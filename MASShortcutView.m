@@ -138,6 +138,11 @@
             {
             _shortcutCell.bezelStyle = NSRoundedBezelStyle;
             } break;
+
+        case MASShortcutViewApperanceRecessed:
+            {
+            _shortcutCell.bezelStyle = NSRecessedBezelStyle;
+            } break;
         }
     }
 
@@ -220,6 +225,7 @@
 
         case MASShortcutViewAppearanceTexturedRect:
         case MASShortcutViewAppearanceRounded:
+        case MASShortcutViewApperanceRecessed:
             {
             [_shortcutCell drawWithFrame: NSOffsetRect( _Frame, 0.0, 1.0 )
                                   inView: self ];

@@ -176,7 +176,7 @@ BOOL InstallHotkeyWithShortcut( MASShortcut* _Shortcut, UInt32* _OutCarbonHotKey
         return NO;
 
     static UInt32 sCarbonHotKeyID = 0;
-	EventHotKeyID hotKeyID = { .signature = kMASShortcutSignature, .id = ++ sCarbonHotKeyID };
+	EventHotKeyID hotKeyID = { .signature = kMASShortcutSignature, .id = ++sCarbonHotKeyID };
     EventHotKeyRef carbonHotKey = NULL;
     if ( RegisterEventHotKey( _Shortcut.carbonKeyCode
                             , _Shortcut.carbonFlags

@@ -575,7 +575,8 @@ void* kUserDataHint = &kUserDataHint;
 - ( void ) didPresentErrorWithRecovery: ( BOOL )_DidRecovery
                            contextInfo: ( void* )_ContextInfo
     {
-
+    if ( !_DidRecovery && _ContextInfo && [ ( id )_ContextInfo isKindOfClass: [ NSError class ] ] )
+        [ self presentError: ( NSError* )_ContextInfo ];
     }
 
 @end

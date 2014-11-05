@@ -431,9 +431,9 @@ BOOL MASShortcutAllowsAnyHotkeyWithOptionModifier = NO;
             CFNumberRef keyVirtualCode = CFDictionaryGetValue( hotKeyInfo, kHISymbolicHotKeyCode );
             CFNumberRef keyModifiers = CFDictionaryGetValue( hotKeyInfo, kHISymbolicHotKeyModifiers );
 
-            if ( ( [ ( __bridge NSNumber* )keyVirtualCode unsignedIntegerValue ] == self.keyCode )
-                    && ( [ ( __bridge NSNumber* )keyModifiers unsignedIntegerValue ] == self.carbonFlags ) )
-                {
+//            if ( ( [ ( __bridge NSNumber* )keyVirtualCode unsignedIntegerValue ] == self.keyCode )
+//                    && ( [ ( __bridge NSNumber* )keyModifiers unsignedIntegerValue ] == self.carbonFlags ) )
+//                {
                 if ( _OutError )
                     {
                     NSString* errorDescription = NSLocalizedString( @"This combination (%@) cannot be used because it is already used by a system-wide keyboard shortcut.", nil );
@@ -453,7 +453,7 @@ BOOL MASShortcutAllowsAnyHotkeyWithOptionModifier = NO;
 
                 CFRelease( globalHotKeys );
                 return YES;
-                }
+//                }
             }
 
         CFRelease( globalHotKeys );
@@ -480,29 +480,31 @@ BOOL MASShortcutAllowsAnyHotkeyWithOptionModifier = NO;
                         contextInfo: ( void* )_ContextInfo
     {
     BOOL isSuccess = NO;
-    NSInvocation* didRecoverInvocation = [ NSInvocation invocationWithMethodSignature:
-        [ _Delegate methodSignatureForSelector: @selector( didPresentErrorWithRecovery:contextInfo: ) ] ];
+    NSInvocation* didRecoverInvocation = [ NSInvocation invocationWithMethodSignature: [ _Delegate methodSignatureForSelector: _DidRecoverySelector ] ];
+    NSError* recoveryError = nil;
 
-    [ didRecoverInvocation setSelector: @selector( didPresentErrorWithRecovery:contextInfo: ) ];
+    [ didRecoverInvocation setSelector: _DidRecoverySelector ];
 
     if ( _RecoveryOptionIndex == 1 /* The user selected "Change in System Preferences" option... */ )
         {
         NSURL* systemPreferencesURL = [ NSURL URLWithString: @"file:///Applications/System%20Preferences.app" ];
 
-        NSError* error = nil;
         NSRunningApplication* runningApp =
             [ [ NSWorkspace sharedWorkspace ] launchApplicationAtURL: systemPreferencesURL
                                                              options: 0
                                                        configuration: nil
-                                                               error: &error ];
-        if ( !runningApp && error )
-            NSLog( @"%@", error );
+                                                               error: &recoveryError ];
+        if ( !runningApp && recoveryError )
+            {
+            NSLog( @"%@", recoveryError );
+            [ didRecoverInvocation setArgument: &recoveryError atIndex: 3 /* The second argument was reserved for isSuccess */ ];
+            }
         else
             isSuccess = YES;
         }
 
     [ didRecoverInvocation setArgument: &isSuccess atIndex: 2 ];
-    [ didRecoverInvocation invokeWithTarget: self ];
+    [ didRecoverInvocation invokeWithTarget: _Delegate ];
     }
 
 @end // MASShortcut + MASShortcutErrorRecoveryAttempting

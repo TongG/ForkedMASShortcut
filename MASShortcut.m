@@ -431,9 +431,9 @@ BOOL MASShortcutAllowsAnyHotkeyWithOptionModifier = NO;
             CFNumberRef keyVirtualCode = CFDictionaryGetValue( hotKeyInfo, kHISymbolicHotKeyCode );
             CFNumberRef keyModifiers = CFDictionaryGetValue( hotKeyInfo, kHISymbolicHotKeyModifiers );
 
-//            if ( ( [ ( __bridge NSNumber* )keyVirtualCode unsignedIntegerValue ] == self.keyCode )
-//                    && ( [ ( __bridge NSNumber* )keyModifiers unsignedIntegerValue ] == self.carbonFlags ) )
-//                {
+            if ( ( [ ( __bridge NSNumber* )keyVirtualCode unsignedIntegerValue ] == self.keyCode )
+                    && ( [ ( __bridge NSNumber* )keyModifiers unsignedIntegerValue ] == self.carbonFlags ) )
+                {
                 if ( _OutError )
                     {
                     NSString* errorDescription = NSLocalizedString( @"This combination (%@) cannot be used because it is already used by a system-wide keyboard shortcut.", nil );
@@ -453,7 +453,7 @@ BOOL MASShortcutAllowsAnyHotkeyWithOptionModifier = NO;
 
                 CFRelease( globalHotKeys );
                 return YES;
-//                }
+                }
             }
 
         CFRelease( globalHotKeys );

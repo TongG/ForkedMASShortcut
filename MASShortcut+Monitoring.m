@@ -73,10 +73,11 @@ void UninstallEventHandler();
 #pragma mark MASShortcut + MASShorcutMonitoring
 @implementation MASShortcut ( MASShorcutMonitoring )
 
-+ ( id ) addGlobalHotkeyMonitorWithShortcut: ( MASShortcut* )_Shortcut
-                                    handler: ( void (^)() )_Handler
++ ( MASShortcutMonitor* ) addGlobalHotkeyMonitorWithShortcut: ( MASShortcut* )_Shortcut
+                                                     handler: ( void (^)() )_Handler
     {
-    NSString* monitor = [ NSString stringWithFormat: @"%@", _Shortcut.description ];
+    MASShortcutMonitor* monitor = [ NSString stringWithFormat: @"%@", _Shortcut.description ];
+
     if ( [ MASRegisteredHotKeys() objectForKey: monitor ] )
         return nil;
 
@@ -90,7 +91,7 @@ void UninstallEventHandler();
     return monitor;
     }
 
-+ ( void ) removeGlobalHotkeyMonitor: ( id )_Monitor;
++ ( void ) removeGlobalHotkeyMonitor: ( MASShortcutMonitor* )_Monitor;
     {
     if ( !_Monitor )
         return;

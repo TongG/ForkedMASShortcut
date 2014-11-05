@@ -443,8 +443,8 @@ BOOL MASShortcutAllowsAnyHotkeyWithOptionModifier = NO;
                                                                     );
 
                     NSDictionary* info = @{ NSLocalizedDescriptionKey : [ NSString stringWithFormat: errorDescription, self.description ]
-                                          , NSLocalizedRecoverySuggestionErrorKey: recoverySuggestion
-                                          , NSLocalizedRecoveryOptionsErrorKey: @[ @"OK", @"Change in System Preferences" ]
+                                          , NSLocalizedRecoverySuggestionErrorKey : recoverySuggestion
+                                          , NSLocalizedRecoveryOptionsErrorKey : @[ @"OK", @"Change in System Preferences" ]
                                           , NSRecoveryAttempterErrorKey : self
                                           };
 
@@ -473,8 +473,18 @@ BOOL MASShortcutAllowsAnyHotkeyWithOptionModifier = NO;
 #pragma mark Error Recovery Attempting
 @implementation MASShortcut ( MASShortcutErrorRecoveryAttempting )
 
-- ( BOOL ) attemptRecoveryFromError: ( NSError* )_Error optionIndex: ( NSUInteger )_RecoveryOptionIndex
+- ( void ) attemptRecoveryFromError: ( NSError* )_Error
+                        optionIndex: ( NSUInteger )_RecoveryOptionIndex
+                           delegate: ( id )_Delegate
+                 didRecoverSelector: ( SEL )_DidRecoverySelector
+                        contextInfo: ( void* )_ContextInfo
     {
+    BOOL isSuccess = NO;
+    NSInvocation* didRecoverInvocation = [ NSInvocation invocationWithMethodSignature:
+        [ _Delegate methodSignatureForSelector: @selector( didPresentErrorWithRecovery:contextInfo: ) ] ];
+
+    [ didRecoverInvocation setSelector: @selector( didPresentErrorWithRecovery:contextInfo: ) ];
+
     if ( _RecoveryOptionIndex == 1 /* The user selected "Change in System Preferences" option... */ )
         {
         NSURL* systemPreferencesURL = [ NSURL URLWithString: @"file:///Applications/System%20Preferences.app" ];
@@ -486,15 +496,13 @@ BOOL MASShortcutAllowsAnyHotkeyWithOptionModifier = NO;
                                                        configuration: nil
                                                                error: &error ];
         if ( !runningApp && error )
-            {
             NSLog( @"%@", error );
-            return NO;
-            }
         else
-            return YES;
+            isSuccess = YES;
         }
 
-    return NO;
+    [ didRecoverInvocation setArgument: &isSuccess atIndex: 2 ];
+    [ didRecoverInvocation invokeWithTarget: self ];
     }
 
 @end // MASShortcut + MASShortcutErrorRecoveryAttempting

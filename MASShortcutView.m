@@ -510,7 +510,11 @@ void* kUserDataHint = &kUserDataHint;
                                 [ weakSelf activateResignObserver: NO ];
                                 [ weakSelf activateEventMonitoring: NO ];
 
-                                [ self presentError: error ];
+                                [ self presentError: error
+                                     modalForWindow: [ self window ]
+                                           delegate: self
+                                 didPresentSelector: @selector( didPresentErrorWithRecovery:contextInfo: )
+                                        contextInfo: NULL ];
 
                                 weakSelf.shortcutPlaceholder = nil;
                                 [ weakSelf activateResignObserver: YES ];
@@ -566,6 +570,13 @@ void* kUserDataHint = &kUserDataHint;
         }
     else
         [ notificationCenter removeObserver: observer ];
+    }
+
+- ( void ) didPresentErrorWithRecovery: ( BOOL )_DidRecovery
+                           contextInfo: ( void* )_ContextInfo
+    {
+    if ( !_DidRecovery && _ContextInfo && [ ( id )_ContextInfo isKindOfClass: [ NSError class ] ] )
+        [ self presentError: ( NSError* )_ContextInfo ];
     }
 
 @end

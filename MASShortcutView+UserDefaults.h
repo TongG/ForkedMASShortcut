@@ -44,9 +44,9 @@
 
 #import "MASShortcutView.h"
 
-@interface MASShortcutView (UserDefaults)
+@interface MASShortcutView ( MASShortcutViewUserDefaults )
 
-@property (nonatomic, copy) NSString *associatedUserDefaultsKey;
+@property ( nonatomic, copy ) NSString* associatedUserDefaultsKey;
 
 @end
 

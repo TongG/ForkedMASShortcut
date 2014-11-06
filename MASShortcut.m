@@ -407,7 +407,8 @@ BOOL MASShortcutAllowsAnyHotkeyWithOptionModifier = NO;
                                                       @"Message for alert when shortcut is already used" );
 
                 NSDictionary* info = @{ NSLocalizedDescriptionKey : [ NSString stringWithFormat: format, menuItem.title ] };
-                *_OutError = [ NSError errorWithDomain: NSCocoaErrorDomain code: 0 userInfo: info ];
+                *_OutError = [ NSError errorWithDomain: NSCocoaErrorDomain
+                                                  code: 0 userInfo: info ];
                 }
 
             return YES;
@@ -444,7 +445,8 @@ BOOL MASShortcutAllowsAnyHotkeyWithOptionModifier = NO;
 
                     NSDictionary* info = @{ NSLocalizedDescriptionKey : [ NSString stringWithFormat: errorDescription, self.description ]
                                           , NSLocalizedRecoverySuggestionErrorKey : recoverySuggestion
-                                          , NSLocalizedRecoveryOptionsErrorKey : @[ @"OK", @"Change in System Preferences" ]
+                                          , NSLocalizedRecoveryOptionsErrorKey : @[ NSLocalizedString( @"OK", nil )
+                                                                                  , NSLocalizedString( @"Change in System Preferences", nil ) ]
                                           , NSRecoveryAttempterErrorKey : self
                                           };
 

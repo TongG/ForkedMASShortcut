@@ -28,12 +28,30 @@
         </ul>
       </header>
       <section>
-        <h1>
-<a id="intro" class="anchor" href="#intro" aria-hidden="true"><span class="octicon octicon-link"></span></a>Intro</h1>
+        <h4>
+<a id="️--created-by-vadim-shpakovski-originally-forked-changed-and-republished-by-tong-guo" class="anchor" href="#%EF%B8%8F--created-by-vadim-shpakovski-originally-forked-changed-and-republished-by-tong-guo" aria-hidden="true"><span class="octicon octicon-link"></span></a><g-emoji alias="warning" fallback-src="https://assets-cdn.github.com/images/icons/emoji/unicode/26a0.png">⚠️</g-emoji>  Created by <a href="https://github.com/shpakovski/MASShortcut.git">Vadim Shpakovski</a> Originally. Forked, Changed and Republished by <a href="https://github.com/TongG/MASShortcut.git">Tong Guo</a>.</h4>
 
-<p>Some time ago Cocoa developers used a brilliant framework <a href="http://wafflesoftware.net/shortcut/">ShortcutRecorder</a> for managing keyboard shortcuts in application preferences. However, it became incompatible with a new plugin architecture of Xcode 4.</p>
+<h1>
+<a id="whats-masshortcut" class="anchor" href="#whats-masshortcut" aria-hidden="true"><span class="octicon octicon-link"></span></a>What's MASShortcut?</h1>
 
-<p>The project MASShortcut introduces modern API and user interface for recording, storing and using global keyboard shortcuts. All code is compatible with Xcode 4.3, Mac OS X 10.7 and the sandboxed environment.</p>
+<p>Some time ago Cocoa developers used a brilliant framework <a href="http://wafflesoftware.net/shortcut/">ShortcutRecorder</a> for managing keyboard shortcuts in application preferences. However, it became incompatible with a new plugin architecture of Xcode 4. All code is compatible with Xcode 4.3 (and later), Mac OS X 10.7 (and later) and the sandboxed environment.</p>
+
+<h1>
+<a id="why-masshortcut" class="anchor" href="#why-masshortcut" aria-hidden="true"><span class="octicon octicon-link"></span></a>Why MASShortcut?</h1>
+
+<p>The project MASShortcut introduces modern API and user interface for recording, storing and using global keyboard shortcuts.</p>
+
+<blockquote>
+<p>There is a lot of menu bar apps which display a panel with user interface when you click the menu bar icon. To make our life easier, these apps usually provide a global keyboard shortcut to access that panel without using your mouse.</p>
+
+<p>Other apps just run in background and wait while you press a hotkey to perform some action. Evernote, Fantastical, Clocks, LittleSnapper, Things… all of these use global shortcuts to do their work. But how to implement this feature in you own Mac app?</p>
+
+<p>Unfortunately, there is no official Cocoa API like NSGlobalShortcut. Instead, you have to deal with old low-level Carbon APIs to listen for global hotkeys, look <a href="http://cocoasamurai.blogspot.jp/2009/03/global-keyboard-shortcuts-with-carbon.html">here</a> and <a href="http://cocoatutorial.grapewave.com/2010/01/adding-a-hotkey-listener/">here</a> to find more details.</p>
+
+<p>In addition, we would need a control like NSGlobalShortcutView to enter and display keyboard shortcuts with special characters for Command, Option and Shift, something like <a href="https://stackoverflow.com/questions/8201338/how-to-implement-shortcut-key-input-in-mac-cocoa-app/8204355#8204355">this</a>.</p>
+
+<p>From the links I just posted, you may find that adding support for global keyboard shortcuts is a non-trivial task. You have to dive into the component architecture, copy many sources or framework into your project, and finally add many lines of code into your app.</p>
+</blockquote>
 
 <h1>
 <a id="usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h1>
@@ -56,7 +74,7 @@ self.shortcutView.associatedUserDefaultsKey = <span class="no">kPreferenceGlobal
      <span class="cm">/* Let me know if you find a better or more convenient API. */</span>
     } ];</pre></div>
 
-<p>To set an example, I made a  demo project: <a href="https://github.com/shpakovski/MASShortcutDemo">MASShortcutDemo</a>. Enjoy!</p>
+<p>To set an example, I made a demo project: <a href="https://github.com/shpakovski/MASShortcutDemo">MASShortcutDemo</a>. Enjoy!</p>
 
 <h1>
 <a id="non-arc-version" class="anchor" href="#non-arc-version" aria-hidden="true"><span class="octicon octicon-link"></span></a>Non-ARC Version</h1>

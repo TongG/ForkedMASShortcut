@@ -1,3 +1,5 @@
+####⚠️  Created by [Vadim Shpakovski](https://github.com/shpakovski/MASShortcut.git) Originally. Forked, Changed and Republished by [Tong Guo](https://github.com/TongG/MASShortcut.git).
+
 # What's MASShortcut?
 
 Some time ago Cocoa developers used a brilliant framework [ShortcutRecorder](http://wafflesoftware.net/shortcut/) for managing keyboard shortcuts in application preferences. However, it became incompatible with a new plugin architecture of Xcode 4. All code is compatible with Xcode 4.3 (and later), Mac OS X 10.7 (and later) and the sandboxed environment.

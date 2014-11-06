@@ -59,7 +59,7 @@ NSString static* kKeyPathForShortcutValueInShortcutViewObject = @"shortcutValue"
     }
 
 @property ( nonatomic, readonly ) NSString* userDefaultsKey;
-@property ( nonatomic, readonly, weak ) MASShortcutView* shortcutView;
+@property ( nonatomic, readonly, unsafe_unretained ) MASShortcutView* shortcutView;
 
 - ( id ) initWithShortcutView: ( MASShortcutView* )_ShortcutView
               userDefaultsKey: ( NSString* )_UserDefaultsKey;
@@ -119,7 +119,7 @@ void* kDefaultsObserver = &kDefaultsObserver;
 
 - ( void ) dealloc
     {
-    // __weak _shortcutView is not yet deallocated because it refers MASShortcutDefaultsObserver
+    // __unsafe_unretained _shortcutView is not yet deallocated because it refers MASShortcutDefaultsObserver
     [ self stopObservingShortcutView ];
     [ super dealloc ];
     }

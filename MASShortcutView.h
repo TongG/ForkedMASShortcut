@@ -47,7 +47,7 @@
 typedef enum
     { MASShortcutViewAppearanceDefault = 0      // Height = 19 px
     , MASShortcutViewAppearanceTexturedRect     // Height = 25 px
-    , MASShortcutViewAppearanceRounded          // Height = 43 px
+    , MASShortcutViewAppearanceRounded          // Same as TexturedRect
     , MASShortcutViewApperanceRecessed          // Same as TexturedRect
     } MASShortcutViewAppearance;
 
